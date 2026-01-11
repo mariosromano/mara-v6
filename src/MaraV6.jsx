@@ -271,14 +271,65 @@ export default function MakeRealV6() {
     setTimeout(() => setStage('result'), 1500);
   };
 
+  // Fallback image finder based on user query
+  const findFallbackImages = (query) => {
+    const lower = query.toLowerCase();
+    const results = [];
+    
+    if (lower.includes('water')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.keywords.includes('water')).slice(0, 2));
+    }
+    if (lower.includes('buddha') || lower.includes('zen') || lower.includes('spa')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.keywords.includes('buddha') || i.keywords.includes('zen')).slice(0, 2));
+    }
+    if (lower.includes('backlit') || lower.includes('glow') || lower.includes('rgb')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.enhancement === 'Backlighting').slice(0, 2));
+    }
+    if (lower.includes('black') || lower.includes('dark')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.color === 'black').slice(0, 2));
+    }
+    if (lower.includes('bedroom')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.keywords.includes('bedroom')).slice(0, 2));
+    }
+    if (lower.includes('shower') || lower.includes('bath')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.keywords.includes('shower')).slice(0, 2));
+    }
+    if (lower.includes('flame')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.pattern === 'Flame').slice(0, 2));
+    }
+    if (lower.includes('billow')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.pattern === 'Billow').slice(0, 2));
+    }
+    if (lower.includes('wave')) {
+      results.push(...IMAGE_CATALOG.filter(i => i.pattern === 'Great Wave').slice(0, 2));
+    }
+    
+    // Dedupe
+    const unique = [];
+    const seen = new Set();
+    for (const img of results) {
+      if (!seen.has(img.id)) {
+        seen.add(img.id);
+        unique.push(img);
+      }
+    }
+    return unique.slice(0, 4);
+  };
+
   // Mara API call
   const sendToMara = async () => {
     if (!maraInput.trim() || maraLoading) return;
     
     const userMessage = maraInput.trim();
+    const lowerMessage = userMessage.toLowerCase();
     setMaraInput('');
     setMaraMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setMaraLoading(true);
+    
+    // Check if user is asking to see something - we'll force show images
+    const wantsImages = lowerMessage.includes('show') || lowerMessage.includes('see') || 
+                        lowerMessage.includes('water') || lowerMessage.includes('backlit') ||
+                        lowerMessage.includes('buddha') || lowerMessage.includes('bedroom');
     
     try {
       const contextMessage = `User is viewing: ${matchedItem?.pattern || pattern || 'Custom Design'}${enhancement ? ` with ${enhancement}` : ''}${color ? ` in ${color}` : ''}${space ? ` for ${space}` : ''}.`;
@@ -307,12 +358,24 @@ export default function MakeRealV6() {
       const data = await response.json();
       if (data.content?.[0]?.text) {
         const fullText = data.content[0].text;
-        const images = parseMaraImages(fullText);
+        let images = parseMaraImages(fullText);
         const cleanText = cleanMaraText(fullText);
+        
+        // FALLBACK: If user wanted images but Claude didn't provide any, find them ourselves
+        if (wantsImages && images.length === 0) {
+          images = findFallbackImages(userMessage);
+        }
+        
         setMaraMessages(prev => [...prev, { role: 'assistant', content: cleanText, images }]);
       }
     } catch (error) {
-      setMaraMessages(prev => [...prev, { role: 'assistant', content: "Sorry, I'm having trouble connecting. Try again in a moment." }]);
+      // Even on error, try to show images if user wanted them
+      const fallbackImages = wantsImages ? findFallbackImages(userMessage) : [];
+      setMaraMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: fallbackImages.length > 0 ? "Here's what I found:" : "Sorry, I'm having trouble connecting. Try again in a moment.",
+        images: fallbackImages
+      }]);
     } finally {
       setMaraLoading(false);
     }
@@ -553,14 +616,15 @@ export default function MakeRealV6() {
         </header>
         
         {/* Main Content */}
-        <main className="flex-1 p-4 flex flex-col overflow-hidden">
+        <main className="flex-1 p-4 flex flex-col">
           
-          {/* Image Container - FIXED HEIGHT so controls always visible */}
-          <div className="relative rounded-xl overflow-hidden border-2 border-stone-800 bg-stone-950" style={{ height: 'calc(100vh - 220px)' }}>
+          {/* Image Container - MAX HEIGHT to ensure controls visible */}
+          <div className="relative rounded-xl overflow-hidden border-2 border-stone-800 bg-stone-950" style={{ maxHeight: '60vh' }}>
             <img 
               src={resultImage} 
               alt={displayPattern}
               className="w-full h-full object-cover"
+              style={{ maxHeight: '60vh' }}
             />
             
             {/* Bottom info bar */}
