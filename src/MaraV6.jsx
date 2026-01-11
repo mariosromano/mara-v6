@@ -2,197 +2,180 @@ import { useState, useRef, useEffect } from 'react';
 
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229';
 
-// Image caimport { useState, useRef, useEffect } from 'react';
-
-const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229';
-
-// Image catalog with rich descriptions
+// Image catalog
 const IMAGE_CATALOG = [
   // Billow
-  { id: 'billow-render', pattern: 'Billow', color: 'White', keywords: ['billow', 'wave', 'flowing', 'organic', 'calm', 'lobby', 'gentle', 'soft'], 
+  { id: 'billow-render', pattern: 'Billow', sector: 'Hospitality', keywords: ['billow', 'wave', 'flowing', 'organic', 'calm', 'lobby', 'gentle', 'soft'], 
     image: `${CLOUDINARY_BASE}/Billow_-_Render-001_copy_ujsmd4.png`,
     description: 'Flowing wave pattern with gentle undulations',
-    application: 'Feature walls, lobbies',
-    maxSize: '144" × 60"', price: 50 },
-  { id: 'billow-strand', pattern: 'Billow', color: 'White', keywords: ['billow', 'restaurant', 'hospitality', 'dining', 'backlit', 'dramatic'],
+    price: 50 },
+  { id: 'billow-strand', pattern: 'Billow', sector: 'Hospitality', keywords: ['billow', 'restaurant', 'hospitality', 'dining', 'backlit', 'dramatic', 'bar'],
     image: `${CLOUDINARY_BASE}/billow-strand-center_copy_scuayc.jpg`,
-    description: 'Billow at The Strand House — dramatic backlit focal point',
-    application: 'Restaurant, hospitality',
-    maxSize: '144" × 60"', price: 100 },
-  { id: 'billow-black', pattern: 'Billow', color: 'Black', keywords: ['billow', 'black', 'dark', 'dramatic', 'bold', 'sculptural'],
+    description: 'Dramatic backlit focal point at The Strand House',
+    price: 100 },
+  { id: 'billow-black', pattern: 'Billow Black', sector: 'Corporate', keywords: ['billow', 'black', 'dark', 'dramatic', 'bold', 'sculptural', 'corporate'],
     image: `${CLOUDINARY_BASE}/Billow-person-black_copy_inkiga.jpg`,
-    description: 'Billow in Deep Nocturne black — bold sculptural presence',
-    application: 'High-impact feature walls',
-    maxSize: '144" × 60"', price: 50 },
-  { id: 'billow-blue', pattern: 'Billow', color: 'White', enhancement: 'Backlighting', keywords: ['billow', 'blue', 'backlit', 'glow', 'rgb', 'nightclub', 'bar', 'dramatic', 'entertainment'],
+    description: 'Bold sculptural presence in Deep Nocturne black',
+    price: 50 },
+  { id: 'billow-blue', pattern: 'Billow RGB', sector: 'Entertainment', keywords: ['billow', 'blue', 'backlit', 'glow', 'rgb', 'nightclub', 'bar', 'dramatic', 'entertainment'],
     image: `${CLOUDINARY_BASE}/billow-backlight-blue-strand-5_copy_gtdcvx.jpg`,
-    description: 'Billow with RGB backlighting — curves come alive with light',
-    application: 'Bars, nightclubs, entertainment',
-    maxSize: '144" × 60"', price: 100 },
+    description: 'RGB backlighting brings curves alive',
+    price: 100 },
   
   // Seattle
-  { id: 'seattle-1', pattern: 'Seattle', color: 'White', keywords: ['seattle', 'tile', 'geometric', 'healthcare', 'hospital', 'clinical', 'modular', 'calming', 'corridor'],
+  { id: 'seattle-1', pattern: 'Seattle', sector: 'Healthcare', keywords: ['seattle', 'tile', 'geometric', 'healthcare', 'hospital', 'clinical', 'modular', 'calming', 'corridor'],
     image: `${CLOUDINARY_BASE}/Seattle-V2-tile-08_copy_xeyhnc.png`,
-    description: 'Seattle modular tiles — wave panels with flat tiles for rhythm',
-    application: 'Healthcare, corridors',
-    maxSize: '96" × 96"', price: 50 },
-  { id: 'seattle-2', pattern: 'Seattle', color: 'White', keywords: ['seattle', 'tile', 'corridor', 'hallway', 'wayfinding', 'healthcare'],
+    description: 'Modular wave and flat tile system',
+    price: 50 },
+  { id: 'seattle-2', pattern: 'Seattle', sector: 'Healthcare', keywords: ['seattle', 'tile', 'corridor', 'hallway', 'wayfinding', 'healthcare', 'calming'],
     image: `${CLOUDINARY_BASE}/Seattle-V2-tile-02_bvcqwc.png`,
-    description: 'Seattle creating visual interest in busy corridors',
-    application: 'High-traffic corridors',
-    maxSize: '96" × 96"', price: 50 },
+    description: 'Visual rhythm for high-traffic corridors',
+    price: 50 },
   
   // Great Wave
-  { id: 'greatwave-1', pattern: 'Great Wave', color: 'White', keywords: ['great wave', 'wave', 'ocean', 'japanese', 'hokusai', 'dramatic', 'artistic', 'bold', 'statement'],
+  { id: 'greatwave-1', pattern: 'Great Wave', sector: 'Hospitality', keywords: ['great wave', 'wave', 'ocean', 'japanese', 'hokusai', 'dramatic', 'artistic', 'bold', 'statement'],
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_03_copy_herewl.png`,
-    description: 'Great Wave — Hokusai-inspired vertical ribs, dramatic shadows',
-    application: 'Statement walls, art installations',
-    maxSize: '144" × 48"', price: 50 },
-  { id: 'greatwave-shower', pattern: 'Great Wave', color: 'White', keywords: ['great wave', 'shower', 'bathroom', 'residential', 'spa', 'luxury'],
+    description: 'Hokusai-inspired vertical ribs',
+    price: 50 },
+  { id: 'greatwave-shower', pattern: 'Great Wave', sector: 'Residential', keywords: ['great wave', 'shower', 'bathroom', 'residential', 'spa', 'luxury'],
     image: `${CLOUDINARY_BASE}/Lim_Great_Wave_shower_contrast_square_copy_yvkh08.jpg`,
-    description: 'Great Wave in luxury shower — seamless, no grout',
-    application: 'Bathrooms, showers',
-    maxSize: '144" × 48"', price: 50 },
-  { id: 'greatwave-lobby', pattern: 'Great Wave', color: 'White', keywords: ['great wave', 'lobby', 'corporate', 'office', 'dramatic', 'first impression'],
+    description: 'Seamless luxury shower, no grout',
+    price: 50 },
+  { id: 'greatwave-lobby', pattern: 'Great Wave', sector: 'Corporate', keywords: ['great wave', 'lobby', 'corporate', 'office', 'dramatic', 'first impression'],
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_16_copy_ojsshm.png`,
-    description: 'Great Wave in corporate lobby — bold first impression',
-    application: 'Corporate lobbies',
-    maxSize: '144" × 48"', price: 50 },
+    description: 'Bold corporate lobby statement',
+    price: 50 },
   
   // Brick / Water Feature
-  { id: 'brick-water-1', pattern: 'Brick', color: 'White', enhancement: 'Water Feature', keywords: ['brick', 'water', 'fountain', 'pool', 'waterfall', 'outdoor', 'cascade'],
+  { id: 'brick-water-1', pattern: 'Brick', sector: 'Residential', keywords: ['brick', 'water', 'fountain', 'pool', 'waterfall', 'outdoor', 'cascade'],
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_05_copy_kewkyh.png`,
-    description: 'Brick water feature — water cascades through carved channels',
-    application: 'Pool areas, courtyards',
-    maxSize: '144" × 60"', price: 70 },
-  { id: 'brick-water-night', pattern: 'Brick', color: 'White', enhancement: 'Water Feature', keywords: ['brick', 'water', 'backlit', 'night', 'dramatic', 'evening'],
+    description: 'Water cascades through carved channels',
+    price: 70 },
+  { id: 'brick-water-night', pattern: 'Brick', sector: 'Residential', keywords: ['brick', 'water', 'backlit', 'night', 'dramatic', 'evening', 'pool'],
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_20_copy_ffh4px.png`,
-    description: 'Brick water feature with backlighting — stunning at night',
-    application: 'Evening entertainment',
-    maxSize: '144" × 60"', price: 120 },
+    description: 'Backlit water feature, stunning at night',
+    price: 120 },
+  { id: 'brick-water-day', pattern: 'Brick', sector: 'Residential', keywords: ['brick', 'water', 'day', 'garden', 'pool', 'outdoor'],
+    image: `${CLOUDINARY_BASE}/Brick_waterfeature_12_copy_gdmjok.png`,
+    description: 'Clean lines, timeless water feature',
+    price: 70 },
   
   // Buddha
-  { id: 'buddha-1', pattern: 'Buddha', color: 'White', enhancement: 'Backlighting', keywords: ['buddha', 'zen', 'meditation', 'spiritual', 'calm', 'spa', 'wellness', 'peaceful', 'asian', 'yoga', 'calming', 'healthcare'],
+  { id: 'buddha-1', pattern: 'Buddha', sector: 'Wellness', keywords: ['buddha', 'zen', 'meditation', 'spiritual', 'calm', 'spa', 'wellness', 'peaceful', 'asian', 'yoga', 'calming', 'healthcare'],
     image: `${CLOUDINARY_BASE}/spa-_Buddha_2_zid08z.png`,
-    description: 'Custom Buddha with warm backlighting — meditative focal point',
-    application: 'Spas, meditation rooms, yoga studios',
-    maxSize: '144" × 60"', price: 100 },
-  { id: 'buddha-2', pattern: 'Buddha', color: 'White', keywords: ['buddha', 'restaurant', 'asian', 'zen', 'dining'],
+    description: 'Custom Buddha with warm backlighting',
+    price: 100 },
+  { id: 'buddha-2', pattern: 'Buddha', sector: 'Hospitality', keywords: ['buddha', 'restaurant', 'asian', 'zen', 'dining'],
     image: `${CLOUDINARY_BASE}/Spa_Buddha_restaurant_yybtdi.png`,
-    description: 'Buddha in Asian restaurant — spiritual yet sophisticated',
-    application: 'Asian restaurants, wellness centers',
-    maxSize: '144" × 60"', price: 50 },
+    description: 'Spiritual yet sophisticated dining backdrop',
+    price: 50 },
   
   // Marilyn
-  { id: 'marilyn-1', pattern: 'Custom Portrait', color: 'White', keywords: ['marilyn', 'portrait', 'hollywood', 'custom', 'branding', 'iconic', 'art'],
+  { id: 'marilyn-1', pattern: 'Custom Portrait', sector: 'Entertainment', keywords: ['marilyn', 'portrait', 'hollywood', 'custom', 'branding', 'iconic', 'art'],
     image: `${CLOUDINARY_BASE}/Marilynn_sm_copy_gcvzcb.jpg`,
-    description: 'Custom Marilyn portrait — we can carve any image',
-    application: 'Branded spaces, entertainment',
-    maxSize: '144" × 60"', price: 50 },
+    description: 'Custom portraits — we can carve any image',
+    price: 50 },
   
   // Fins
-  { id: 'fins-exterior', pattern: 'Fins', color: 'White', keywords: ['fins', 'exterior', 'facade', 'corporate', 'modern', 'architectural', 'shadow'],
+  { id: 'fins-exterior', pattern: 'Fins', sector: 'Exterior', keywords: ['fins', 'exterior', 'facade', 'corporate', 'modern', 'architectural', 'shadow', 'outdoor'],
     image: `${CLOUDINARY_BASE}/Fins_exterior_white_gcccvq.jpg`,
-    description: 'Fins on exterior — dynamic shadow play throughout the day',
-    application: 'Building facades',
-    maxSize: '120" × 60"', price: 50 },
+    description: 'Dynamic shadow play throughout the day',
+    price: 50 },
+  { id: 'fins-exterior-2', pattern: 'Fins', sector: 'Hospitality', keywords: ['fins', 'exterior', 'patio', 'restaurant', 'outdoor', 'dining'],
+    image: `${CLOUDINARY_BASE}/Fins_exterior2_lh1vlw.jpg`,
+    description: 'Dramatic outdoor dining backdrop',
+    price: 50 },
   
   // Flame
-  { id: 'flame-1', pattern: 'Flame', color: 'White', keywords: ['flame', 'fire', 'warm', 'organic', 'flowing', 'dynamic', 'energy', 'hospitality'],
+  { id: 'flame-1', pattern: 'Flame', sector: 'Hospitality', keywords: ['flame', 'fire', 'warm', 'organic', 'flowing', 'dynamic', 'energy', 'hospitality'],
     image: `${CLOUDINARY_BASE}/Flame-_qle4y3.jpg`,
-    description: 'Flame — interweaving waves that cross and merge',
-    application: 'Feature walls, hospitality',
-    maxSize: '144" × 60"', price: 50 },
-  { id: 'flame-bed', pattern: 'Flame', color: 'White', keywords: ['flame', 'bedroom', 'headboard', 'residential', 'luxury'],
+    description: 'Interweaving waves that cross and merge',
+    price: 50 },
+  { id: 'flame-bed', pattern: 'Flame', sector: 'Residential', keywords: ['flame', 'bedroom', 'headboard', 'residential', 'luxury'],
     image: `${CLOUDINARY_BASE}/Flamebed_yggqrp.jpg`,
-    description: 'Flame as bedroom headboard — texture and warmth',
-    application: 'Bedrooms, residential',
-    maxSize: '144" × 60"', price: 50 },
-  { id: 'flame-pink', pattern: 'Flame', color: 'White', enhancement: 'Backlighting', keywords: ['flame', 'pink', 'rgb', 'backlit', 'bedroom', 'romantic', 'boutique'],
+    description: 'Textured warmth as bedroom headboard',
+    price: 50 },
+  { id: 'flame-pink', pattern: 'Flame RGB', sector: 'Hospitality', keywords: ['flame', 'pink', 'rgb', 'backlit', 'bedroom', 'romantic', 'boutique', 'hotel'],
     image: `${CLOUDINARY_BASE}/Flame_pink_obxnpm.jpg`,
-    description: 'Flame with pink RGB — interweaving pattern glows beautifully',
-    application: 'Bedrooms, boutique hotels',
-    maxSize: '144" × 60"', price: 100 },
+    description: 'Pink RGB backlighting for boutique hotels',
+    price: 100 },
   
   // Sand Dune
-  { id: 'sanddune-curved', pattern: 'Sand Dune', color: 'Black', enhancement: 'Curvature', keywords: ['sand dune', 'curved', 'black', 'column', 'dramatic', 'sculptural', 'wrap'],
+  { id: 'sanddune-curved', pattern: 'Sand Dune', sector: 'Corporate', keywords: ['sand dune', 'curved', 'black', 'column', 'dramatic', 'sculptural', 'wrap'],
     image: `${CLOUDINARY_BASE}/Fins_Sandune_texture_Curved_black_m1vtil.png`,
-    description: 'Sand Dune thermoformed around column — sculptural black Corian',
-    application: 'Columns, curved walls',
-    maxSize: '144" × 60"', price: 75 },
-  { id: 'sanddune-blue', pattern: 'Sand Dune', color: 'White', enhancement: 'Backlighting', keywords: ['sand dune', 'blue', 'spa', 'backlit', 'wellness', 'calming'],
+    description: 'Thermoformed around column, black Corian',
+    price: 75 },
+  { id: 'sanddune-blue', pattern: 'Sand Dune', sector: 'Wellness', keywords: ['sand dune', 'blue', 'spa', 'backlit', 'wellness', 'calming'],
     image: `${CLOUDINARY_BASE}/mr-render-1767992780170_ufyyef.png`,
-    description: 'Sand Dune with blue backlighting — organic ripples glow softly',
-    application: 'Spas, wellness centers',
-    maxSize: '144" × 60"', price: 100 },
+    description: 'Blue backlighting for wellness spaces',
+    price: 100 },
 ];
 
-// Mara system prompt - conversational, shows ONE image
-const MARA_SYSTEM_PROMPT = `You are Mara, MR Walls design assistant. You help architects find carved Corian wall surfaces.
+// Get 2 starter images
+const getStarterImages = () => {
+  const indices = [0, 6]; // Billow and Great Wave
+  return indices.map(i => IMAGE_CATALOG[i]);
+};
 
-PERSONALITY: Warm, knowledgeable, design-focused. Not salesy.
+// Find best images for query
+const findImages = (query, count = 2) => {
+  const lower = query.toLowerCase();
+  const words = lower.split(/\s+/);
+  
+  const scored = IMAGE_CATALOG.map(item => {
+    let score = 0;
+    for (const word of words) {
+      if (word.length < 3) continue;
+      for (const keyword of item.keywords) {
+        if (keyword.includes(word) || word.includes(keyword)) score += 10;
+      }
+      if (item.pattern.toLowerCase().includes(word)) score += 20;
+      if (item.sector.toLowerCase().includes(word)) score += 15;
+      if (item.description.toLowerCase().includes(word)) score += 5;
+    }
+    return { ...item, score };
+  });
+  
+  return scored.filter(i => i.score > 0).sort((a, b) => b.score - a.score).slice(0, count);
+};
+
+// Mara system prompt
+const MARA_SYSTEM = `You are Mara, MR Walls design assistant. Warm, knowledgeable, genuinely excited about design.
 
 RULES:
-1. Keep responses to 2-3 sentences (under 40 words)
-2. Describe the ONE image being shown and why it fits their needs
-3. End with a short follow-up question
-4. Never list multiple patterns — focus on the one shown
+1. Keep responses to 2-3 sentences MAX (under 40 words)
+2. Reference the images you're showing by name
+3. End with ONE short follow-up question
+4. Be conversational, not salesy
 
 KNOWLEDGE:
-- Material: DuPont Corian — non-porous, seamless, Class A fire rated
-- Pricing: $50-100/SF depending on enhancement
+- Material: DuPont Corian — seamless, non-porous, Class A fire rated
+- Panels up to 144" × 60", seamless via InterlockPanel™
 - Lead time: 6-10 weeks
-- Panel sizes: Up to 144" × 60"
+- Pricing: $50-100/SF depending on backlighting
 
-SECTOR TIPS:
-- Healthcare: non-porous for infection control, calming patterns reduce stress
-- Hospitality: Instagram-worthy, durable, brand storytelling
-- Bars/Entertainment: Backlighting creates drama, RGB color options
-- Corporate: First impressions, talent attraction`;
+When user mentions:
+- Healthcare → non-porous, calming, infection control
+- Bar/entertainment → RGB backlighting, drama
+- Water feature → carved channels, backlit at night
+- Corporate → first impressions, sculptural presence`;
 
-export default function MaraV8() {
-  const [currentImage, setCurrentImage] = useState(IMAGE_CATALOG[0]);
-  const [messages, setMessages] = useState([]);
+export default function MaraV9() {
+  const [messages, setMessages] = useState([
+    {
+      role: 'assistant',
+      content: "Hey! I'm Mara from MR Walls. I help architects explore seamless wall surfaces.\n\nHere are a couple projects to get us started:",
+      images: getStarterImages()
+    }
+  ]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [showSpecs, setShowSpecs] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
   const chatEndRef = useRef(null);
   
   useEffect(() => {
     chatEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  // Find best single image for query
-  const findBestImage = (query) => {
-    const lower = query.toLowerCase();
-    const words = lower.split(/\s+/);
-    
-    let bestMatch = IMAGE_CATALOG[0];
-    let bestScore = 0;
-    
-    for (const item of IMAGE_CATALOG) {
-      let score = 0;
-      
-      for (const word of words) {
-        for (const keyword of item.keywords) {
-          if (keyword.includes(word) || word.includes(keyword)) {
-            score += 10;
-          }
-        }
-        if (item.pattern.toLowerCase().includes(word)) score += 20;
-        if (item.description.toLowerCase().includes(word)) score += 5;
-        if (item.application.toLowerCase().includes(word)) score += 8;
-        if (item.enhancement?.toLowerCase().includes(word)) score += 15;
-      }
-      
-      if (score > bestScore) {
-        bestScore = score;
-        bestMatch = item;
-      }
-    }
-    
-    return bestMatch;
-  };
 
   const sendMessage = async () => {
     if (!input.trim() || isLoading) return;
@@ -202,16 +185,13 @@ export default function MaraV8() {
     setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
     setIsLoading(true);
     
-    // Find best matching image and update hero
-    const bestImage = findBestImage(userMessage);
-    setCurrentImage(bestImage);
+    // Find relevant images
+    const images = findImages(userMessage, 2);
     
     try {
-      const contextMessage = `Now showing: ${bestImage.pattern} — ${bestImage.description}. Application: ${bestImage.application}. Price: $${bestImage.price}/SF.
-
-User asked: "${userMessage}"
-
-Describe why this specific pattern fits their needs. Be brief and helpful.`;
+      const context = images.length > 0 
+        ? `Showing: ${images.map(i => `${i.pattern} (${i.sector})`).join(' and ')}. User asked: "${userMessage}"`
+        : `No exact matches. User asked: "${userMessage}"`;
       
       const response = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
@@ -224,150 +204,133 @@ Describe why this specific pattern fits their needs. Be brief and helpful.`;
         body: JSON.stringify({
           model: 'claude-sonnet-4-20250514',
           max_tokens: 100,
-          system: MARA_SYSTEM_PROMPT,
+          system: MARA_SYSTEM,
           messages: [
             ...messages.slice(-4).map(m => ({ role: m.role, content: m.content })),
-            { role: 'user', content: contextMessage }
+            { role: 'user', content: context }
           ]
         })
       });
       
       const data = await response.json();
-      const maraText = data.content?.[0]?.text || `This is ${bestImage.pattern} — ${bestImage.description}. What aspect would you like to explore?`;
+      const text = data.content?.[0]?.text || "Here's what I found:";
       
-      setMessages(prev => [...prev, { role: 'assistant', content: maraText }]);
-      
-    } catch (error) {
       setMessages(prev => [...prev, { 
         role: 'assistant', 
-        content: `This is ${bestImage.pattern} — ${bestImage.description}. Perfect for ${bestImage.application.toLowerCase()}. Want to see it in a different color or with backlighting?`
+        content: text,
+        images: images.length > 0 ? images : null
+      }]);
+      
+    } catch (error) {
+      const fallbackText = images.length > 0 
+        ? `Here's ${images[0].pattern} — ${images[0].description.toLowerCase()}. What draws you to this style?`
+        : "Tell me more about your project — what sector and what feeling are you going for?";
+      
+      setMessages(prev => [...prev, { 
+        role: 'assistant', 
+        content: fallbackText,
+        images: images.length > 0 ? images : null
       }]);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const quickPrompts = [
-    "Something calming for healthcare",
-    "Dramatic bar backdrop",
-    "Water feature for pool",
-    "Corporate lobby statement"
-  ];
-
   return (
     <div className="h-screen bg-stone-950 text-stone-100 flex flex-col" style={{ fontFamily: "system-ui, -apple-system, sans-serif" }}>
       
       {/* Header */}
-      <header className="flex-shrink-0 px-6 py-4 flex items-center justify-between border-b border-stone-800">
+      <header className="flex-shrink-0 px-5 py-4 flex items-center justify-between border-b border-stone-800">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center">
-            <span className="text-sm font-bold text-white">M</span>
+          <div className="w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center border border-stone-700">
+            <span className="text-xs font-bold text-stone-300">M|R</span>
           </div>
           <div>
-            <span className="font-medium text-stone-100">MakeReal</span>
-            <span className="text-stone-500 text-sm ml-2">by MR Walls</span>
+            <div className="font-medium text-stone-100">Mara</div>
+            <div className="text-xs text-stone-500">MR Walls Design Assistant</div>
           </div>
         </div>
-        <button 
-          onClick={() => setShowSpecs(true)}
-          className="px-4 py-2 bg-white text-black text-sm font-medium rounded-lg hover:bg-stone-100 transition-colors"
-        >
-          Get Specs
+        <button className="w-9 h-9 rounded-full bg-stone-800 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.5 20.25a9.75 9.75 0 0119.5 0" />
+          </svg>
         </button>
       </header>
       
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col min-h-0 p-6 gap-4">
-        
-        {/* Image Container - Boxed with controlled aspect */}
-        <div className="flex-1 min-h-0 flex flex-col">
-          <div className="flex-1 rounded-2xl overflow-hidden border border-stone-800 bg-stone-900 flex items-center justify-center">
-            <img 
-              src={currentImage.image} 
-              alt={currentImage.pattern}
-              className="max-w-full max-h-full object-contain"
-            />
-          </div>
-          
-          {/* Image Info Bar */}
-          <div className="mt-3 flex items-center justify-between">
-            <div>
-              <h2 className="text-xl font-medium text-white">{currentImage.pattern}</h2>
-              <p className="text-sm text-stone-400">{currentImage.description}</p>
-            </div>
-            <div className="flex items-center gap-3">
-              <span className="text-xs px-3 py-1.5 bg-stone-800 text-stone-300 rounded-full">{currentImage.maxSize}</span>
-              <span className="text-xs px-3 py-1.5 bg-rose-500/20 text-rose-300 rounded-full font-medium">${currentImage.price}/SF</span>
-            </div>
-          </div>
-        </div>
-        
-        {/* Chat Section */}
-        <div className="flex-shrink-0 bg-stone-900 rounded-2xl border border-stone-800 overflow-hidden">
-          
-          {/* Messages - scrollable */}
-          <div className="max-h-[180px] overflow-y-auto p-4 space-y-3">
-            {messages.length === 0 ? (
-              <div className="text-center py-2">
-                <p className="text-sm text-stone-400">Ask Mara about any space or style — she'll find the perfect pattern.</p>
-              </div>
-            ) : (
-              messages.map((msg, i) => (
-                <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] rounded-xl px-4 py-2.5 ${
-                    msg.role === 'user' 
-                      ? 'bg-stone-700 text-white' 
-                      : 'bg-stone-800 text-stone-200'
-                  }`}>
-                    <p className="text-sm">{msg.content}</p>
-                  </div>
-                </div>
-              ))
-            )}
-            
-            {isLoading && (
-              <div className="flex justify-start">
-                <div className="bg-stone-800 rounded-xl px-4 py-2.5">
-                  <div className="flex gap-1">
-                    <span className="w-2 h-2 bg-stone-500 rounded-full animate-bounce" />
-                    <span className="w-2 h-2 bg-stone-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                    <span className="w-2 h-2 bg-stone-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  </div>
+      {/* Chat Area */}
+      <div className="flex-1 overflow-y-auto">
+        <div className="max-w-3xl mx-auto px-4 py-6 space-y-6">
+          {messages.map((msg, i) => (
+            <div key={i}>
+              {/* Message text */}
+              <div className={`${msg.role === 'user' ? 'ml-auto max-w-[80%]' : 'max-w-full'}`}>
+                <div className={`rounded-2xl px-4 py-3 ${
+                  msg.role === 'user' 
+                    ? 'bg-stone-700 text-white ml-auto w-fit' 
+                    : 'bg-stone-900 border border-stone-800 text-stone-200'
+                }`}>
+                  <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                 </div>
               </div>
-            )}
-            <div ref={chatEndRef} />
-          </div>
+              
+              {/* Images grid - only for assistant */}
+              {msg.images && msg.images.length > 0 && (
+                <div className={`mt-4 grid gap-3 ${msg.images.length === 1 ? 'grid-cols-1 max-w-md' : 'grid-cols-2'}`}>
+                  {msg.images.map((img, j) => (
+                    <button
+                      key={j}
+                      onClick={() => setSelectedImage(img)}
+                      className="group text-left rounded-xl overflow-hidden bg-stone-900 border border-stone-800 hover:border-stone-600 transition-all"
+                    >
+                      <div className="aspect-[4/3] overflow-hidden">
+                        <img 
+                          src={img.image} 
+                          alt={img.pattern}
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      </div>
+                      <div className="p-3">
+                        <h3 className="font-medium text-sm text-white">{img.pattern}</h3>
+                        <p className="text-xs text-stone-500">{img.sector} • ${img.price}/SF</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          ))}
           
-          {/* Quick prompts */}
-          {messages.length === 0 && (
-            <div className="px-4 pb-2 flex flex-wrap gap-2">
-              {quickPrompts.map((prompt, i) => (
-                <button
-                  key={i}
-                  onClick={() => setInput(prompt)}
-                  className="text-xs px-3 py-1.5 bg-stone-800 hover:bg-stone-700 text-stone-400 hover:text-white rounded-full transition-all"
-                >
-                  {prompt}
-                </button>
-              ))}
+          {isLoading && (
+            <div className="flex items-center gap-2">
+              <div className="bg-stone-900 border border-stone-800 rounded-2xl px-4 py-3">
+                <div className="flex gap-1">
+                  <span className="w-2 h-2 bg-stone-500 rounded-full animate-bounce" />
+                  <span className="w-2 h-2 bg-stone-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-stone-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              </div>
             </div>
           )}
-          
-          {/* Input */}
-          <div className="p-3 border-t border-stone-800 flex gap-2">
+          <div ref={chatEndRef} />
+        </div>
+      </div>
+      
+      {/* Input Area */}
+      <div className="flex-shrink-0 border-t border-stone-800 bg-stone-950">
+        <div className="max-w-3xl mx-auto px-4 py-4">
+          <div className="flex gap-3">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-              placeholder="Describe what you're looking for..."
-              className="flex-1 px-4 py-2.5 bg-stone-800 border border-stone-700 rounded-xl text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-stone-600"
+              placeholder="Ask Mara anything..."
+              className="flex-1 px-4 py-3 bg-stone-900 border border-stone-700 rounded-xl text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-stone-500"
             />
             <button 
               onClick={sendMessage}
               disabled={isLoading || !input.trim()}
-              className="px-5 py-2.5 bg-white text-black rounded-xl font-medium text-sm hover:bg-stone-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="px-5 py-3 bg-white text-black rounded-xl font-medium text-sm hover:bg-stone-200 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
               Send
             </button>
@@ -375,57 +338,43 @@ Describe why this specific pattern fits their needs. Be brief and helpful.`;
         </div>
       </div>
       
-      {/* Specs Modal */}
-      {showSpecs && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-6" onClick={() => setShowSpecs(false)}>
-          <div className="bg-stone-950 rounded-2xl max-w-lg w-full border border-stone-800 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      {/* Image Detail Modal */}
+      {selectedImage && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
+          <div className="max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
             
-            {/* Image thumbnail */}
-            <div className="h-40 overflow-hidden">
-              <img src={currentImage.image} alt={currentImage.pattern} className="w-full h-full object-cover" />
+            {/* Image */}
+            <div className="flex-1 min-h-0 flex items-center justify-center">
+              <img 
+                src={selectedImage.image} 
+                alt={selectedImage.pattern}
+                className="max-w-full max-h-[70vh] object-contain rounded-lg"
+              />
             </div>
-
-            <div className="p-5 space-y-4">
+            
+            {/* Info bar */}
+            <div className="mt-4 bg-stone-900 rounded-xl p-4 flex items-center justify-between">
               <div>
-                <h2 className="text-2xl font-medium text-white">{currentImage.pattern}</h2>
-                <p className="text-sm text-stone-400 mt-1">{currentImage.description}</p>
+                <h2 className="text-xl font-medium text-white">{selectedImage.pattern}</h2>
+                <p className="text-sm text-stone-400">{selectedImage.description}</p>
               </div>
-              
-              {/* Specs grid */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-stone-900 rounded-xl p-3">
-                  <p className="text-[10px] uppercase text-stone-500">Max Panel</p>
-                  <p className="text-base text-white">{currentImage.maxSize}</p>
-                </div>
-                <div className="bg-stone-900 rounded-xl p-3">
-                  <p className="text-[10px] uppercase text-stone-500">Material</p>
-                  <p className="text-base text-white">{currentImage.color} Corian</p>
-                </div>
-                <div className="bg-stone-900 rounded-xl p-3">
-                  <p className="text-[10px] uppercase text-stone-500">Lead Time</p>
-                  <p className="text-base text-white">6-10 weeks</p>
-                </div>
-                <div className="bg-stone-900 rounded-xl p-3">
-                  <p className="text-[10px] uppercase text-stone-500">Application</p>
-                  <p className="text-base text-white">{currentImage.application.split(',')[0]}</p>
-                </div>
+              <div className="flex items-center gap-3">
+                <span className="text-xs px-3 py-1.5 bg-stone-800 text-stone-300 rounded-full">{selectedImage.sector}</span>
+                <span className="text-lg font-medium text-rose-400">${selectedImage.price}/SF</span>
               </div>
-
-              {/* Price */}
-              <div className="bg-rose-950/50 border border-rose-900/50 rounded-xl p-4 flex justify-between items-center">
-                <span className="text-stone-300">Price</span>
-                <span className="text-2xl font-medium text-rose-300">${currentImage.price}/SF</span>
-              </div>
-
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button className="flex-1 py-3 bg-white text-black rounded-xl font-medium text-sm">
-                  Download Spec Sheet
-                </button>
-                <button onClick={() => setShowSpecs(false)} className="flex-1 py-3 bg-stone-800 text-stone-200 rounded-xl font-medium text-sm border border-stone-700">
-                  Close
-                </button>
-              </div>
+            </div>
+            
+            {/* Actions */}
+            <div className="mt-3 flex gap-3">
+              <button className="flex-1 py-3 bg-white text-black rounded-xl font-medium text-sm hover:bg-stone-200">
+                Get Specs
+              </button>
+              <button 
+                onClick={() => setSelectedImage(null)}
+                className="flex-1 py-3 bg-stone-800 text-white rounded-xl font-medium text-sm hover:bg-stone-700"
+              >
+                Back to Chat
+              </button>
             </div>
           </div>
         </div>
