@@ -3,8 +3,7 @@ import { useState, useRef, useEffect } from 'react';
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// IMAGE CATALOG - Only REAL Cloudinary URLs that exist
-// Rich descriptions for Claude intent reasoning
+// IMAGE CATALOG - With full spec data for each pattern
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const IMAGE_CATALOG = [
@@ -15,8 +14,17 @@ const IMAGE_CATALOG = [
     title: 'Billow Wave',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Billow_-_Render-001_copy_ujsmd4.png`,
-    price: 50,
-    description: `Billow pattern — gentle horizontal waves like wind across water. Our most versatile organic pattern. Works in lobbies, spas, restaurants. Good for: hospitality, wellness, corporate lobbies, sophisticated calm.`
+    specs: {
+      height: '96"',
+      width: '144"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 50
+    },
+    shopDrawing: null, // Coming soon
+    description: `Billow pattern — gentle horizontal waves like wind across water. Our most versatile organic pattern.`
   },
   {
     id: 'billow-strand',
@@ -24,8 +32,18 @@ const IMAGE_CATALOG = [
     title: 'Strand House',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/billow-strand-center_copy_scuayc.jpg`,
-    price: 100,
-    description: `Billow at The Strand House restaurant — dramatic backlit bar installation. Purple RGB lighting transforms it into a glowing focal point. Good for: restaurants, bars, nightclubs, signature moments.`
+    specs: {
+      height: '120"',
+      width: '180"',
+      slabs: 4,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 100,
+      enhancement: 'RGB Backlighting'
+    },
+    shopDrawing: null,
+    description: `Billow at The Strand House restaurant — dramatic backlit bar installation.`
   },
   {
     id: 'billow-black',
@@ -33,8 +51,17 @@ const IMAGE_CATALOG = [
     title: 'Billow Black',
     sector: 'Corporate',
     image: `${CLOUDINARY_BASE}/Billow-person-black_copy_inkiga.jpg`,
-    price: 50,
-    description: `Billow in Deep Nocturne black — bold sculptural presence, almost geological. Good for: corporate headquarters, luxury retail, law firms, fashion brands, anywhere black makes a statement.`
+    specs: {
+      height: '120"',
+      width: '240"',
+      slabs: 5,
+      material: 'DuPont Corian®',
+      color: 'Deep Nocturne',
+      leadTime: '8 Weeks',
+      pricePerSF: 55
+    },
+    shopDrawing: null,
+    description: `Billow in Deep Nocturne black — bold sculptural presence.`
   },
   {
     id: 'billow-blue',
@@ -42,8 +69,18 @@ const IMAGE_CATALOG = [
     title: 'Billow Blue RGB',
     sector: 'Entertainment',
     image: `${CLOUDINARY_BASE}/billow-backlight-blue-strand-5_copy_gtdcvx.jpg`,
-    price: 100,
-    description: `Billow with blue RGB backlighting — electric blue glow, nightclub atmosphere. Can cycle colors or pulse to music. Good for: bars, nightclubs, entertainment venues, hotel lounges.`
+    specs: {
+      height: '120"',
+      width: '180"',
+      slabs: 4,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 100,
+      enhancement: 'RGB Backlighting'
+    },
+    shopDrawing: null,
+    description: `Billow with blue RGB backlighting — electric blue glow.`
   },
 
   // SEATTLE
@@ -53,8 +90,17 @@ const IMAGE_CATALOG = [
     title: 'Seattle Healthcare',
     sector: 'Healthcare',
     image: `${CLOUDINARY_BASE}/Seattle-V2-tile-08_copy_xeyhnc.png`,
-    price: 50,
-    description: `Seattle modular tiles in healthcare corridor — carved wave panels alternate with flat tiles. Designed FOR healthcare: easy to clean, calming, code-compliant. Good for: hospitals, clinics, medical offices, senior living, behavioral health.`
+    specs: {
+      height: '96"',
+      width: '96"',
+      slabs: 4,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '4 Weeks',
+      pricePerSF: 45
+    },
+    shopDrawing: null,
+    description: `Seattle modular tiles in healthcare corridor.`
   },
   {
     id: 'seattle-2',
@@ -62,8 +108,17 @@ const IMAGE_CATALOG = [
     title: 'Seattle Corridor',
     sector: 'Healthcare',
     image: `${CLOUDINARY_BASE}/Seattle-V2-tile-02_bvcqwc.png`,
-    price: 50,
-    description: `Seattle tiles handling corridor turns. Durable, non-porous, meets infection control. Good for: high-traffic institutional spaces, healthcare, education, corporate corridors.`
+    specs: {
+      height: '96"',
+      width: '192"',
+      slabs: 8,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '4 Weeks',
+      pricePerSF: 45
+    },
+    shopDrawing: null,
+    description: `Seattle tiles handling corridor turns.`
   },
 
   // GREAT WAVE
@@ -73,8 +128,17 @@ const IMAGE_CATALOG = [
     title: 'Great Wave',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_03_copy_herewl.png`,
-    price: 50,
-    description: `Great Wave — Hokusai-inspired vertical ribs creating the crashing wave. ART you can build. Good for: statement walls, museum-quality installations, Japanese aesthetic, artistic conversation pieces.`
+    specs: {
+      height: '120"',
+      width: '240"',
+      slabs: 5,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '8 Weeks',
+      pricePerSF: 65
+    },
+    shopDrawing: null,
+    description: `Great Wave — Hokusai-inspired vertical ribs creating the crashing wave.`
   },
   {
     id: 'greatwave-shower',
@@ -82,8 +146,17 @@ const IMAGE_CATALOG = [
     title: 'Great Wave Shower',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Lim_Great_Wave_shower_contrast_square_copy_yvkh08.jpg`,
-    price: 50,
-    description: `Great Wave wrapping a luxury shower — seamless corner to corner. No grout, no maintenance, waterproof. Good for: luxury bathrooms, spa-like primary suites, gallery-feel bathrooms.`
+    specs: {
+      height: '96"',
+      width: '120"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 65
+    },
+    shopDrawing: null,
+    description: `Great Wave wrapping a luxury shower — seamless corner to corner.`
   },
   {
     id: 'greatwave-2',
@@ -91,8 +164,17 @@ const IMAGE_CATALOG = [
     title: 'Great Wave Exterior',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_20_copy_abzou8.png`,
-    price: 50,
-    description: `Great Wave at exterior scale — UV-stable Corian handles full sun. Facade-scale public art. Good for: exterior installations, resort entrances, outdoor hospitality.`
+    specs: {
+      height: '144"',
+      width: '288"',
+      slabs: 6,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '10 Weeks',
+      pricePerSF: 75
+    },
+    shopDrawing: null,
+    description: `Great Wave at exterior scale — UV-stable Corian.`
   },
   {
     id: 'greatwave-3',
@@ -100,8 +182,17 @@ const IMAGE_CATALOG = [
     title: 'Great Wave Restaurant',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_09_copy_lcqfa0.png`,
-    price: 50,
-    description: `Great Wave in restaurant setting — guests dine beneath the crashing foam. Warm, inviting evening atmosphere. Good for: restaurants, hotels, Instagram-worthy hospitality.`
+    specs: {
+      height: '120"',
+      width: '200"',
+      slabs: 5,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '8 Weeks',
+      pricePerSF: 65
+    },
+    shopDrawing: null,
+    description: `Great Wave in restaurant setting.`
   },
   {
     id: 'greatwave-4',
@@ -109,8 +200,17 @@ const IMAGE_CATALOG = [
     title: 'Great Wave Corporate',
     sector: 'Corporate',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_16_copy_ojsshm.png`,
-    price: 50,
-    description: `Great Wave in corporate lobby — artistic pattern in professional environment. Signals creative, bold company culture. Good for: creative agencies, tech companies, corporate headquarters.`
+    specs: {
+      height: '120"',
+      width: '240"',
+      slabs: 5,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '8 Weeks',
+      pricePerSF: 65
+    },
+    shopDrawing: null,
+    description: `Great Wave in corporate lobby.`
   },
 
   // BRICK WATER FEATURES
@@ -120,8 +220,18 @@ const IMAGE_CATALOG = [
     title: 'Brick Water Feature',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_05_copy_kewkyh.png`,
-    price: 75,
-    description: `Brick water feature — carved channels create dozens of small waterfalls. Mesmerizing sound. Good for: pools, outdoor living, resort entries, spa environments, zen water features.`
+    specs: {
+      height: '96"',
+      width: '144"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 75,
+      enhancement: 'Water Feature'
+    },
+    shopDrawing: null,
+    description: `Brick water feature — carved channels create dozens of small waterfalls.`
   },
   {
     id: 'brick-water-2',
@@ -129,8 +239,17 @@ const IMAGE_CATALOG = [
     title: 'Brick Poolside',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_18_copy_oce67r.png`,
-    price: 75,
-    description: `Brick water feature at poolside — black Corian against tropical landscaping. Backyard resort living. Good for: luxury residential pools, resort pools, tropical climates.`
+    specs: {
+      height: '120"',
+      width: '180"',
+      slabs: 4,
+      material: 'DuPont Corian®',
+      color: 'Deep Nocturne',
+      leadTime: '6 Weeks',
+      pricePerSF: 80
+    },
+    shopDrawing: null,
+    description: `Brick water feature at poolside — black Corian.`
   },
   {
     id: 'brick-water-3',
@@ -138,8 +257,18 @@ const IMAGE_CATALOG = [
     title: 'Brick Backlit Water',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_20_copy_ffh4px.png`,
-    price: 100,
-    description: `Brick water feature with backlighting — channels glow while water flows. Day-to-night transformation. Good for: pools wanting evening drama, hospitality water features.`
+    specs: {
+      height: '96"',
+      width: '144"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 100,
+      enhancement: 'Backlit Water Feature'
+    },
+    shopDrawing: null,
+    description: `Brick water feature with backlighting.`
   },
   {
     id: 'brick-water-4',
@@ -147,8 +276,17 @@ const IMAGE_CATALOG = [
     title: 'Brick Night',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_27_copy_nxcqhx.png`,
-    price: 75,
-    description: `Brick water feature at night — landscape lighting grazes surface, water catches light. Good for: residential outdoor living, hospitality pool areas, evening presence.`
+    specs: {
+      height: '96"',
+      width: '144"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 75
+    },
+    shopDrawing: null,
+    description: `Brick water feature at night.`
   },
   {
     id: 'brick-water-5',
@@ -156,8 +294,17 @@ const IMAGE_CATALOG = [
     title: 'Brick Daylight',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_12_copy_gdmjok.png`,
-    price: 75,
-    description: `Brick water feature in daylight — clean, architectural, water catching sun. Good for: modern residential, contemporary hospitality, minimalist aesthetic.`
+    specs: {
+      height: '96"',
+      width: '144"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 75
+    },
+    shopDrawing: null,
+    description: `Brick water feature in daylight.`
   },
 
   // BUDDHA MANDALA
@@ -167,8 +314,18 @@ const IMAGE_CATALOG = [
     title: 'Buddha Spa',
     sector: 'Wellness',
     image: `${CLOUDINARY_BASE}/spa-_Buddha_2_zid08z.png`,
-    price: 100,
-    description: `Buddha mandala with warm golden backlighting — spiritual focal point. Good for: spas, meditation rooms, yoga studios, wellness centers, zen retreats, anywhere wanting calm + spiritual presence. MATCHES: buddha, zen, meditation, peaceful, calm, spa, wellness, spiritual, asian, mandala, yoga, sanctuary, tranquil, mindfulness, serene.`
+    specs: {
+      height: '96"',
+      width: '96"',
+      slabs: 2,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 85,
+      enhancement: 'Backlighting'
+    },
+    shopDrawing: null,
+    description: `Buddha mandala with warm golden backlighting — spiritual focal point. MATCHES: buddha, zen, meditation, peaceful, calm, spa, wellness, spiritual, asian, mandala, yoga, sanctuary.`
   },
   {
     id: 'buddha-2',
@@ -176,8 +333,17 @@ const IMAGE_CATALOG = [
     title: 'Buddha Restaurant',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Spa_Buddha_restaurant_yybtdi.png`,
-    price: 100,
-    description: `Buddha mandala in restaurant setting — spiritual imagery in hospitality. Good for: Asian restaurants, Thai/Balinese resorts, spa restaurants, dining with wellness aesthetic.`
+    specs: {
+      height: '96"',
+      width: '96"',
+      slabs: 2,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 85
+    },
+    shopDrawing: null,
+    description: `Buddha mandala in restaurant setting.`
   },
 
   // MARILYN
@@ -187,8 +353,17 @@ const IMAGE_CATALOG = [
     title: 'Marilyn Portrait',
     sector: 'Entertainment',
     image: `${CLOUDINARY_BASE}/Marilyn_1_copy_eka0g1.png`,
-    price: 150,
-    description: `Marilyn Monroe portrait carved into Corian — demonstrates custom portrait capability. Any image can become carved surface. Good for: entertainment venues, brand experiences, pop art architecture.`
+    specs: {
+      height: '96"',
+      width: '72"',
+      slabs: 2,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '8 Weeks',
+      pricePerSF: 150
+    },
+    shopDrawing: null,
+    description: `Marilyn Monroe portrait carved into Corian — demonstrates custom portrait capability.`
   },
 
   // SAND DUNE
@@ -198,8 +373,18 @@ const IMAGE_CATALOG = [
     title: 'Sand Dune Curved',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Fins_Sandune_texture_Curved_black_m1vtil.png`,
-    price: 75,
-    description: `Sand Dune wrapped around curved column in black — thermoformed cylinder. This pattern WRAPS non-flat surfaces. Good for: resort entry columns, curved walls, dramatic arrivals.`
+    specs: {
+      height: '120"',
+      width: '60"',
+      slabs: 2,
+      material: 'DuPont Corian®',
+      color: 'Deep Nocturne',
+      leadTime: '8 Weeks',
+      pricePerSF: 90,
+      enhancement: 'Thermoformed'
+    },
+    shopDrawing: null,
+    description: `Sand Dune wrapped around curved column in black — thermoformed cylinder.`
   },
   {
     id: 'sanddune-blue-spa',
@@ -207,8 +392,18 @@ const IMAGE_CATALOG = [
     title: 'Sand Dune Blue Spa',
     sector: 'Wellness',
     image: `${CLOUDINARY_BASE}/mr-render-1767992780170_ufyyef.png`,
-    price: 100,
-    description: `Sand Dune with blue RGB backlighting in spa — horizontal waves glow aquatic blue. ZEN LUXURY. Good for: spas, wellness centers, meditation rooms, calming + aquatic + luxurious, soaking tub feature walls.`
+    specs: {
+      height: '96"',
+      width: '144"',
+      slabs: 3,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 95,
+      enhancement: 'RGB Backlighting'
+    },
+    shopDrawing: null,
+    description: `Sand Dune with blue RGB backlighting in spa — horizontal waves glow aquatic blue. ZEN LUXURY.`
   },
   {
     id: 'sanddune-onsen',
@@ -216,19 +411,40 @@ const IMAGE_CATALOG = [
     title: 'Sand Dune Onsen',
     sector: 'Wellness',
     image: `${CLOUDINARY_BASE}/mr-render-1767989995638_copy_vtszj0.png`,
-    price: 75,
-    description: `Sand Dune as water feature in Japanese onsen — water cascades down carved gray surface. Cedar timbers, shoji screen feeling. JAPANESE SPA aesthetic. Good for: onsen-style spas, Japanese restaurants, ryokan hospitality. MATCHES: japanese, onsen, zen, bath, soaking, hot spring, ryokan, minimalist, peaceful, asian, bamboo.`
+    specs: {
+      height: '96"',
+      width: '180"',
+      slabs: 4,
+      material: 'DuPont Corian®',
+      color: 'Gray',
+      leadTime: '6 Weeks',
+      pricePerSF: 80,
+      enhancement: 'Water Feature'
+    },
+    shopDrawing: null,
+    description: `Sand Dune as water feature in Japanese onsen. JAPANESE SPA aesthetic. MATCHES: japanese, onsen, zen, bath, soaking, hot spring, ryokan, minimalist, peaceful, asian.`
   },
 
-  // DESERT SUNSET - Using REAL Cloudinary URLs that exist
+  // DESERT SUNSET - WITH FULL SPECS AND SHOP DRAWING
   {
     id: 'desert-sunset-1',
     pattern: 'Desert Sunset',
-    title: 'Desert Cactus',
+    title: 'Desert Sunset Cactus',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/mr-render-1768084337564_copy_k4ihhj.png`,
-    price: 100,
-    description: `Desert Sunset — saguaro cactus silhouettes against carved mountain ridges with warm sunset backlighting. REGIONAL IDENTITY for Southwest hospitality. Good for: Arizona resorts, desert spas, Southwest hotels. MATCHES: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, sedona, mesa, cacti, sonoran, mojave, palm springs, las vegas, ranch, western.`
+    specs: {
+      height: '142"',
+      width: '239¾"',
+      slabs: 5,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '4 Weeks',
+      pricePerSF: 65,
+      enhancement: 'Backlighting'
+    },
+    // Shop drawing hosted on Cloudinary - UPDATE THIS URL after upload
+    shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229/shop_drawing_cactus.png',
+    description: `Desert Sunset — saguaro cactus silhouettes against carved mountain ridges with warm sunset backlighting. REGIONAL IDENTITY for Southwest hospitality. MATCHES: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, sedona, mesa, cacti, sonoran, mojave, palm springs, las vegas, ranch, western.`
   },
   {
     id: 'desert-sunset-2',
@@ -236,8 +452,17 @@ const IMAGE_CATALOG = [
     title: 'Desert Abstract',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/IzWQuibirwnFxWcm4KoFs_copy_kiypvi.png`,
-    price: 100,
-    description: `Desert Sunset abstract — stylized desert landscape, flowing mountain forms. Desert FEELING without literal cactus. Good for: corporate in Southwest markets, modern regional identity.`
+    specs: {
+      height: '120"',
+      width: '200"',
+      slabs: 4,
+      material: 'DuPont Corian®',
+      color: 'Glacier White',
+      leadTime: '6 Weeks',
+      pricePerSF: 60
+    },
+    shopDrawing: null,
+    description: `Desert Sunset abstract — stylized desert landscape, flowing mountain forms.`
   }
 ];
 
@@ -257,16 +482,16 @@ Warm, knowledgeable, loves design. Not salesy — helpful and proud of the work.
 4. **ONE QUESTION** — End with one follow-up
 
 ## INTENT REASONING
-- "southwest" or "arizona" or "cactus" → Desert Sunset
-- "zen" or "meditation" or "peaceful" or "buddha" → Buddha Mandala
-- "japanese" or "onsen" → Sand Dune Onsen  
-- "dramatic" or "bold" or "black" → Billow Black or Great Wave
-- "water feature" or "pool" or "fountain" → Brick water features
-- "healthcare" or "hospital" → Seattle
-- "spa" or "wellness" → Buddha or Sand Dune Blue Spa
+- "southwest" or "arizona" or "cactus" → desert-sunset-1
+- "zen" or "meditation" or "peaceful" or "buddha" → buddha-1
+- "japanese" or "onsen" → sanddune-onsen
+- "dramatic" or "bold" or "black" → billow-black
+- "water feature" or "pool" or "fountain" → brick-water-1
+- "healthcare" or "hospital" → seattle-1
+- "spa" or "wellness" → buddha-1 or sanddune-blue-spa
 
 ## AVAILABLE IMAGES
-${IMAGE_CATALOG.map(img => `- ${img.id}: ${img.pattern} - ${img.description.slice(0, 100)}...`).join('\n')}
+${IMAGE_CATALOG.map(img => `- ${img.id}: ${img.pattern} - ${img.description.slice(0, 80)}...`).join('\n')}
 
 Example response:
 "For Southwest hospitality, Desert Sunset is perfect — saguaro cactus silhouettes against warm sunset backlighting.
@@ -279,11 +504,12 @@ Is this for a lobby statement wall or throughout guest areas?"`;
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export default function MaraV10() {
+export default function MaraV11() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showMara, setShowMara] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -376,8 +602,16 @@ export default function MaraV10() {
       return [findImage('buddha-1'), findImage('sanddune-blue-spa')].filter(Boolean);
     }
     
-    // Default: show variety
     return [IMAGE_CATALOG[0], IMAGE_CATALOG[6]];
+  };
+
+  // Calculate SF and total price
+  const calculatePrice = (specs) => {
+    const heightInches = parseFloat(specs.height);
+    const widthInches = parseFloat(specs.width);
+    const sf = (heightInches * widthInches) / 144;
+    const total = sf * specs.pricePerSF;
+    return { sf: sf.toFixed(0), total: total.toFixed(0) };
   };
 
   // Send message
@@ -397,7 +631,6 @@ export default function MaraV10() {
       const images = imageIds.map(id => findImage(id)).filter(Boolean);
       const cleanText = cleanResponse(response);
 
-      // If Claude didn't return valid images, use fallback
       const finalImages = images.length > 0 ? images : getFallbackImages(userMessage);
 
       setMessages([...newMessages, {
@@ -418,12 +651,34 @@ export default function MaraV10() {
     }
   };
 
-  // Initial greeting with 2 images
+  // Handle custom size request
+  const handleCustomSize = () => {
+    const subject = encodeURIComponent(`Custom Size Request: ${selectedImage.title}`);
+    const body = encodeURIComponent(`Hi,\n\nI'm interested in the ${selectedImage.title} (${selectedImage.pattern}) in a custom size.\n\nMy required dimensions:\nHeight: \nWidth: \n\nProject details:\n\n`);
+    window.location.href = `mailto:Orders@marioromano.com?subject=${subject}&body=${body}`;
+  };
+
+  // Handle buy now
+  const handleBuyNow = () => {
+    // Placeholder - will integrate Stripe
+    alert('Buy Now coming soon! For now, please email Orders@marioromano.com');
+  };
+
+  // Handle spec download
+  const handleSpecDownload = () => {
+    if (selectedImage.shopDrawing) {
+      window.open(selectedImage.shopDrawing, '_blank');
+    } else {
+      alert('Shop drawing coming soon for this pattern. Email Orders@marioromano.com for specs.');
+    }
+  };
+
+  // Initial greeting
   useEffect(() => {
     setMessages([{
       role: 'assistant',
       text: "Hey! I'm Mara from MR Walls. I help architects explore carved wall surfaces. What kind of space are you working on?",
-      images: [IMAGE_CATALOG[0], IMAGE_CATALOG[6]] // Billow and Great Wave
+      images: [IMAGE_CATALOG[0], IMAGE_CATALOG[6]]
     }]);
   }, []);
 
@@ -441,13 +696,11 @@ export default function MaraV10() {
         </div>
       </header>
 
-      {/* Messages - scrollable area */}
+      {/* Messages */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
             <div className="max-w-2xl">
-              
-              {/* Text bubble */}
               <div className={`rounded-2xl px-4 py-3 ${
                 msg.role === 'user'
                   ? 'bg-stone-700 text-stone-100'
@@ -456,7 +709,6 @@ export default function MaraV10() {
                 <p className="text-sm leading-relaxed">{msg.text}</p>
               </div>
 
-              {/* 2-up Image Grid - SMALLER like Screenshot 4 */}
               {msg.images && msg.images.length > 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   {msg.images.map((img, j) => (
@@ -465,7 +717,6 @@ export default function MaraV10() {
                       onClick={() => setSelectedImage(img)}
                       className="cursor-pointer rounded-xl overflow-hidden border border-stone-800 hover:border-stone-600 transition-all hover:scale-[1.02] bg-stone-900"
                     >
-                      {/* Image - constrained height */}
                       <div className="aspect-square bg-stone-800 relative">
                         <img
                           src={img.image}
@@ -477,10 +728,9 @@ export default function MaraV10() {
                           }}
                         />
                       </div>
-                      {/* Title bar */}
                       <div className="p-3">
                         <h3 className="text-sm font-medium text-stone-100 truncate">{img.title}</h3>
-                        <p className="text-xs text-stone-500">{img.sector} • ${img.price}/SF</p>
+                        <p className="text-xs text-stone-500">{img.sector} • {img.pattern}</p>
                       </div>
                     </div>
                   ))}
@@ -490,7 +740,6 @@ export default function MaraV10() {
           </div>
         ))}
 
-        {/* Loading */}
         {loading && (
           <div className="flex justify-start">
             <div className="bg-stone-900 border border-stone-800 rounded-2xl px-4 py-3">
@@ -506,7 +755,7 @@ export default function MaraV10() {
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Input - always visible at bottom */}
+      {/* Input */}
       <footer className="flex-shrink-0 border-t border-stone-800 bg-stone-950 p-4">
         <div className="max-w-2xl mx-auto flex gap-3">
           <input
@@ -529,27 +778,30 @@ export default function MaraV10() {
         </div>
       </footer>
 
-      {/* Specs Modal - on image click */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SPEC-TO-BUY MODAL
+          ═══════════════════════════════════════════════════════════════════════ */}
       {selectedImage && (
         <div 
-          className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 overflow-y-auto"
           onClick={() => setSelectedImage(null)}
         >
           <div 
-            className="bg-stone-900 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto"
+            className="bg-stone-900 rounded-2xl max-w-md w-full my-4"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
-            <div className="aspect-[4/3] bg-stone-800 relative">
-              <img
-                src={selectedImage.image}
-                alt={selectedImage.title}
-                className="w-full h-full object-cover"
-              />
-              {/* Close button */}
+            <div className="relative">
+              <div className="aspect-[4/3] bg-stone-800 rounded-t-2xl overflow-hidden">
+                <img
+                  src={selectedImage.image}
+                  alt={selectedImage.title}
+                  className="w-full h-full object-cover"
+                />
+              </div>
               <button
                 onClick={() => setSelectedImage(null)}
-                className="absolute top-3 right-3 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
+                className="absolute top-3 right-3 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors"
               >
                 ✕
               </button>
@@ -557,47 +809,86 @@ export default function MaraV10() {
 
             {/* Details */}
             <div className="p-5">
-              <div className="flex items-start justify-between mb-4">
-                <div>
-                  <h2 className="text-xl font-semibold text-stone-100">{selectedImage.title}</h2>
-                  <p className="text-stone-400 text-sm">{selectedImage.pattern} • {selectedImage.sector}</p>
-                </div>
-                <span className="text-xl font-bold text-emerald-400">${selectedImage.price}/SF</span>
-              </div>
+              {/* Title & Pattern */}
+              <h2 className="text-xl font-semibold text-stone-100">{selectedImage.title}</h2>
+              <p className="text-stone-400 text-sm">{selectedImage.pattern} • {selectedImage.sector}</p>
+              
+              {/* Slab count */}
+              <p className="text-stone-500 text-sm mt-2">
+                arrives in {selectedImage.specs.slabs} puzzled slabs
+              </p>
 
-              {/* Specs grid */}
-              <div className="grid grid-cols-2 gap-3 mb-5">
-                <div className="bg-stone-800 rounded-lg p-3">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Max Panel</p>
-                  <p className="text-sm text-stone-200 mt-1">144" × 60"</p>
+              {/* Specs Grid */}
+              <div className="grid grid-cols-2 gap-3 mt-4">
+                {/* Dimensions */}
+                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
+                  <p className="text-lg font-medium text-stone-100">
+                    {selectedImage.specs.height} high
+                  </p>
+                  <p className="text-lg font-medium text-stone-100">
+                    x {selectedImage.specs.width} wide
+                  </p>
                 </div>
-                <div className="bg-stone-800 rounded-lg p-3">
+                
+                {/* Material */}
+                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
                   <p className="text-xs text-stone-500 uppercase tracking-wide">Material</p>
-                  <p className="text-sm text-stone-200 mt-1">DuPont Corian®</p>
+                  <p className="text-sm font-medium text-stone-100 mt-1">{selectedImage.specs.material}</p>
+                  <p className="text-sm text-stone-400">{selectedImage.specs.color}</p>
                 </div>
-                <div className="bg-stone-800 rounded-lg p-3">
+                
+                {/* Lead Time */}
+                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
                   <p className="text-xs text-stone-500 uppercase tracking-wide">Lead Time</p>
-                  <p className="text-sm text-stone-200 mt-1">6-10 weeks</p>
+                  <p className="text-lg font-medium text-stone-100 mt-1">{selectedImage.specs.leadTime}</p>
                 </div>
-                <div className="bg-stone-800 rounded-lg p-3">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">System</p>
-                  <p className="text-sm text-stone-200 mt-1">InterlockPanel™</p>
+                
+                {/* Price */}
+                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
+                  <p className="text-xs text-stone-500 uppercase tracking-wide">Price per SF</p>
+                  <p className="text-lg font-medium text-emerald-400 mt-1">${selectedImage.specs.pricePerSF}</p>
                 </div>
               </div>
 
-              {/* Actions */}
-              <div className="flex gap-3">
-                <button className="flex-1 py-3 bg-white text-stone-900 rounded-xl font-medium text-sm hover:bg-stone-100 transition-colors">
-                  📄 Download Specs
+              {/* Enhancement badge if applicable */}
+              {selectedImage.specs.enhancement && (
+                <div className="mt-3">
+                  <span className="inline-block px-3 py-1 bg-amber-900/50 text-amber-200 text-xs rounded-full">
+                    {selectedImage.specs.enhancement}
+                  </span>
+                </div>
+              )}
+
+              {/* Action Buttons */}
+              <div className="grid grid-cols-2 gap-3 mt-5">
+                <button 
+                  onClick={handleSpecDownload}
+                  className="py-3 bg-stone-800 border border-stone-600 text-stone-100 rounded-xl font-medium text-sm hover:bg-stone-700 transition-colors flex items-center justify-center gap-2"
+                >
+                  📐 Spec in Plans
                 </button>
-                <button className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-medium text-sm hover:bg-emerald-500 transition-colors">
-                  📐 Shop Drawing
+                <button 
+                  onClick={handleBuyNow}
+                  className="py-3 bg-white text-stone-900 rounded-xl font-medium text-sm hover:bg-stone-100 transition-colors flex items-center justify-center gap-2"
+                >
+                  💳 Buy Now
                 </button>
               </div>
 
-              {/* Request Quote */}
-              <button className="mt-3 w-full py-3 border border-stone-700 text-stone-300 rounded-xl font-medium text-sm hover:bg-stone-800 transition-colors">
-                Request Quote
+              {/* Custom Size */}
+              <button 
+                onClick={handleCustomSize}
+                className="mt-3 w-full py-3 border border-stone-700 text-stone-400 rounded-xl font-medium text-sm hover:bg-stone-800 hover:text-stone-200 transition-colors"
+              >
+                Request custom size
+              </button>
+
+              {/* Mara Help */}
+              <button 
+                onClick={() => { setSelectedImage(null); inputRef.current?.focus(); }}
+                className="mt-3 w-full py-2 text-stone-500 text-sm hover:text-stone-300 transition-colors flex items-center justify-center gap-2"
+              >
+                💬 Questions? Ask Mara
               </button>
             </div>
           </div>
