@@ -3,388 +3,283 @@ import { useState, useRef, useEffect } from 'react';
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// IMAGE CATALOG - Rich descriptions for Claude reasoning
-// Claude picks based on INTENT, not keywords
-// "southwest" → Arizona resort → Desert Sunset
-// "cactas" (misspelled) → cactus → Desert Sunset  
-// "something calm" → zen, peaceful → Buddha, Sand Dune onsen
+// IMAGE CATALOG - Only REAL Cloudinary URLs that exist
+// Rich descriptions for Claude intent reasoning
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const IMAGE_CATALOG = [
-  
-  // ═══════════════════════════════════════════════════════════════
-  // BILLOW - Flowing horizontal waves, like wind across water
-  // ═══════════════════════════════════════════════════════════════
-  
+  // BILLOW
   {
     id: 'billow-render',
     pattern: 'Billow',
+    title: 'Billow Wave',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Billow_-_Render-001_copy_ujsmd4.png`,
     price: 50,
-    description: `Billow pattern in white Corian — gentle horizontal waves that flow like wind across water. This is our most versatile organic pattern. Works in lobbies, spas, restaurants, anywhere you want calm movement without being too bold. The waves catch light throughout the day creating subtle shadow play. Good for: hospitality, wellness, corporate lobbies, anywhere needing sophisticated calm.`
+    description: `Billow pattern — gentle horizontal waves like wind across water. Our most versatile organic pattern. Works in lobbies, spas, restaurants. Good for: hospitality, wellness, corporate lobbies, sophisticated calm.`
   },
-  
   {
     id: 'billow-strand',
     pattern: 'Billow',
+    title: 'Strand House',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/billow-strand-center_copy_scuayc.jpg`,
     price: 100,
-    description: `Billow at The Strand House restaurant in Manhattan Beach — dramatic backlit installation behind the bar. The purple/violet RGB lighting transforms it into a glowing focal point. This shows what happens when you add backlighting to an organic pattern — it becomes the heart of the room. Good for: restaurants, bars, nightclubs, hospitality venues wanting a signature moment.`
+    description: `Billow at The Strand House restaurant — dramatic backlit bar installation. Purple RGB lighting transforms it into a glowing focal point. Good for: restaurants, bars, nightclubs, signature moments.`
   },
-  
   {
     id: 'billow-black',
-    pattern: 'Billow',
+    pattern: 'Billow Black',
+    title: 'Billow Black',
     sector: 'Corporate',
     image: `${CLOUDINARY_BASE}/Billow-person-black_copy_inkiga.jpg`,
     price: 50,
-    description: `Billow in Deep Nocturne black — same flowing waves but dramatically different mood. Black Corian creates bold sculptural presence, almost geological. The figure in the image shows human scale — this is monumental. Good for: corporate headquarters wanting gravitas, luxury retail, high-end residential, anywhere black makes a statement. Think: law firms, fashion brands, modern homes.`
+    description: `Billow in Deep Nocturne black — bold sculptural presence, almost geological. Good for: corporate headquarters, luxury retail, law firms, fashion brands, anywhere black makes a statement.`
   },
-  
   {
     id: 'billow-blue',
-    pattern: 'Billow',
+    pattern: 'Billow RGB',
+    title: 'Billow Blue RGB',
     sector: 'Entertainment',
     image: `${CLOUDINARY_BASE}/billow-backlight-blue-strand-5_copy_gtdcvx.jpg`,
     price: 100,
-    description: `Billow with blue RGB backlighting — the waves glow electric blue, creating a nightclub/lounge atmosphere. This is the same Strand House installation showing color versatility. The RGB system can cycle colors, pulse to music, or hold steady. Good for: bars, nightclubs, entertainment venues, hotel lounges, anywhere wanting dramatic evening presence.`
+    description: `Billow with blue RGB backlighting — electric blue glow, nightclub atmosphere. Can cycle colors or pulse to music. Good for: bars, nightclubs, entertainment venues, hotel lounges.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // SEATTLE - Modular carved wave + flat tile system
-  // ═══════════════════════════════════════════════════════════════
-  
+  // SEATTLE
   {
     id: 'seattle-1',
     pattern: 'Seattle',
+    title: 'Seattle Healthcare',
     sector: 'Healthcare',
     image: `${CLOUDINARY_BASE}/Seattle-V2-tile-08_copy_xeyhnc.png`,
     price: 50,
-    description: `Seattle modular tile system in a healthcare corridor — alternating carved wave panels with flat tiles creates rhythm without overwhelming. This pattern was designed FOR healthcare: easy to clean, calming but not clinical, creates wayfinding interest in long corridors. Good for: hospitals, clinics, medical offices, senior living, behavioral health, anywhere needing calm + cleanable + code-compliant.`
+    description: `Seattle modular tiles in healthcare corridor — carved wave panels alternate with flat tiles. Designed FOR healthcare: easy to clean, calming, code-compliant. Good for: hospitals, clinics, medical offices, senior living, behavioral health.`
   },
-  
   {
     id: 'seattle-2',
     pattern: 'Seattle',
+    title: 'Seattle Corridor',
     sector: 'Healthcare',
     image: `${CLOUDINARY_BASE}/Seattle-V2-tile-02_bvcqwc.png`,
     price: 50,
-    description: `Seattle tiles in a high-traffic corridor — shows how the modular system handles turns and transitions. The carved panels break up long walls while flat tiles keep it from being too busy. Durable, non-porous, meets infection control standards. Good for: any high-traffic institutional space — healthcare, education, corporate corridors.`
+    description: `Seattle tiles handling corridor turns. Durable, non-porous, meets infection control. Good for: high-traffic institutional spaces, healthcare, education, corporate corridors.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // GREAT WAVE - Hokusai-inspired, dramatic vertical ribs
-  // ═══════════════════════════════════════════════════════════════
-  
+  // GREAT WAVE
   {
     id: 'greatwave-1',
     pattern: 'Great Wave',
+    title: 'Great Wave',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_03_copy_herewl.png`,
     price: 50,
-    description: `Great Wave pattern — inspired by Hokusai's iconic woodblock print. Vertical ribs carved through to create the crashing wave imagery. This is ART you can build — dramatic, recognizable, impossible to ignore. The scale is monumental. Good for: statement walls, museum-quality installations, luxury hospitality, anywhere wanting Japanese aesthetic influence, artistic clients who want conversation pieces.`
+    description: `Great Wave — Hokusai-inspired vertical ribs creating the crashing wave. ART you can build. Good for: statement walls, museum-quality installations, Japanese aesthetic, artistic conversation pieces.`
   },
-  
   {
     id: 'greatwave-shower',
     pattern: 'Great Wave',
+    title: 'Great Wave Shower',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Lim_Great_Wave_shower_contrast_square_copy_yvkh08.jpg`,
     price: 50,
-    description: `Great Wave wrapping a luxury shower — the wave crests across three walls, seamless corner to corner. Matte black fixtures contrast with white Corian. This shows residential application: no grout lines, no maintenance, waterproof, and you're showering inside art. Good for: luxury bathrooms, spa-like primary suites, high-end residential, clients who want their bathroom to feel like a gallery.`
+    description: `Great Wave wrapping a luxury shower — seamless corner to corner. No grout, no maintenance, waterproof. Good for: luxury bathrooms, spa-like primary suites, gallery-feel bathrooms.`
   },
-  
   {
     id: 'greatwave-2',
     pattern: 'Great Wave',
+    title: 'Great Wave Exterior',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_20_copy_abzou8.png`,
     price: 50,
-    description: `Great Wave at exterior scale — UV-stable Corian handles full sun exposure. The vertical ribs cast shadows that shift throughout the day. This is facade-scale public art. Good for: exterior installations, resort entrances, outdoor hospitality, anywhere wanting sculptural presence that can handle weather.`
+    description: `Great Wave at exterior scale — UV-stable Corian handles full sun. Facade-scale public art. Good for: exterior installations, resort entrances, outdoor hospitality.`
   },
-  
   {
     id: 'greatwave-3',
     pattern: 'Great Wave',
+    title: 'Great Wave Restaurant',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_09_copy_lcqfa0.png`,
     price: 50,
-    description: `Great Wave at a restaurant/hospitality setting — guests dine beneath the crashing foam. String lights and warm interiors create an inviting evening atmosphere. Shows how dramatic pattern can still feel warm and welcoming. Good for: restaurants, hotels, resorts, hospitality venues wanting memorable Instagram moments.`
+    description: `Great Wave in restaurant setting — guests dine beneath the crashing foam. Warm, inviting evening atmosphere. Good for: restaurants, hotels, Instagram-worthy hospitality.`
   },
-  
   {
     id: 'greatwave-4',
     pattern: 'Great Wave',
+    title: 'Great Wave Corporate',
     sector: 'Corporate',
     image: `${CLOUDINARY_BASE}/Great_Wave_banana_16_copy_ojsshm.png`,
     price: 50,
-    description: `Great Wave in a corporate lobby setting — proves this artistic pattern works in professional environments too. Makes a statement about company culture: creative, bold, appreciates craft. Good for: creative agencies, tech companies, corporate headquarters wanting to signal innovation and artistry.`
+    description: `Great Wave in corporate lobby — artistic pattern in professional environment. Signals creative, bold company culture. Good for: creative agencies, tech companies, corporate headquarters.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // BRICK - Water feature system, carved channels for cascading water
-  // ═══════════════════════════════════════════════════════════════
-  
+  // BRICK WATER FEATURES
   {
     id: 'brick-water-1',
     pattern: 'Brick',
+    title: 'Brick Water Feature',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_05_copy_kewkyh.png`,
     price: 75,
-    description: `Brick water feature — carved horizontal channels create dozens of small waterfalls as water cascades down. The sound is mesmerizing. This is our signature water feature pattern. Good for: pools, outdoor living, resort entries, spa environments, anywhere wanting the sight and sound of flowing water. The horizontal lines evoke calm, order, zen.`
+    description: `Brick water feature — carved channels create dozens of small waterfalls. Mesmerizing sound. Good for: pools, outdoor living, resort entries, spa environments, zen water features.`
   },
-  
   {
     id: 'brick-water-2',
     pattern: 'Brick',
+    title: 'Brick Poolside',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_18_copy_oce67r.png`,
     price: 75,
-    description: `Brick water feature at poolside — black Corian against tropical landscaping. Palm trees, lounge chairs, the sound of water. This is backyard resort living. UV-stable material handles Florida sun. Good for: luxury residential pools, resort pools, outdoor hospitality, tropical climates, anywhere wanting water + sculptural presence.`
+    description: `Brick water feature at poolside — black Corian against tropical landscaping. Backyard resort living. Good for: luxury residential pools, resort pools, tropical climates.`
   },
-  
   {
     id: 'brick-water-3',
     pattern: 'Brick',
+    title: 'Brick Backlit Water',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_20_copy_ffh4px.png`,
     price: 100,
-    description: `Brick water feature with backlighting — the carved channels glow from behind while water flows over the surface. Day-to-night transformation. During day it's sculptural; at night it's luminous. Good for: pools wanting evening drama, hospitality water features, anywhere backlighting adds value.`
+    description: `Brick water feature with backlighting — channels glow while water flows. Day-to-night transformation. Good for: pools wanting evening drama, hospitality water features.`
   },
-  
   {
     id: 'brick-water-4',
     pattern: 'Brick',
+    title: 'Brick Night',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_27_copy_nxcqhx.png`,
     price: 75,
-    description: `Brick water feature at night — shows the evening presence of these installations. Landscape lighting grazes the surface, water catches light as it falls. The daytime wow becomes nighttime magic. Good for: residential outdoor living, hospitality pool areas, anywhere wanting presence after dark.`
+    description: `Brick water feature at night — landscape lighting grazes surface, water catches light. Good for: residential outdoor living, hospitality pool areas, evening presence.`
   },
-  
   {
     id: 'brick-water-5',
     pattern: 'Brick',
+    title: 'Brick Daylight',
     sector: 'Residential',
     image: `${CLOUDINARY_BASE}/Brick_waterfeature_12_copy_gdmjok.png`,
     price: 75,
-    description: `Brick water feature in bright daylight — clean, architectural, the water catching sun as it cascades. Shows how the pattern reads in full natural light. Good for: modern residential, contemporary hospitality, minimalist aesthetic, clients wanting clean lines + water.`
+    description: `Brick water feature in daylight — clean, architectural, water catching sun. Good for: modern residential, contemporary hospitality, minimalist aesthetic.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // BUDDHA MANDALA - Custom portrait/spiritual imagery
-  // ═══════════════════════════════════════════════════════════════
-  
+  // BUDDHA MANDALA
   {
     id: 'buddha-1',
     pattern: 'Buddha Mandala',
+    title: 'Buddha Spa',
     sector: 'Wellness',
     image: `${CLOUDINARY_BASE}/spa-_Buddha_2_zid08z.png`,
     price: 100,
-    description: `Buddha mandala carved into white Corian with warm golden backlighting — the face emerges from carved geometric patterns, glowing like a meditation focal point. This is SPIRITUAL design. Good for: spas, meditation rooms, yoga studios, wellness centers, Asian-inspired hospitality, zen gardens, anywhere wanting calm + spiritual presence. This should match: buddha, zen, meditation, peaceful, calm, spa, wellness, spiritual, asian, mandala, yoga, retreat, sanctuary, tranquil, mindfulness, serene, relaxing, healing, therapeutic, holistic.`
+    description: `Buddha mandala with warm golden backlighting — spiritual focal point. Good for: spas, meditation rooms, yoga studios, wellness centers, zen retreats, anywhere wanting calm + spiritual presence. MATCHES: buddha, zen, meditation, peaceful, calm, spa, wellness, spiritual, asian, mandala, yoga, sanctuary, tranquil, mindfulness, serene.`
   },
-  
   {
     id: 'buddha-2',
     pattern: 'Buddha Mandala',
+    title: 'Buddha Restaurant',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Spa_Buddha_restaurant_yybtdi.png`,
     price: 100,
-    description: `Buddha mandala in a restaurant setting — shows this spiritual imagery works in hospitality too. Asian restaurant, Thai spa resort, anywhere wanting cultural authenticity and calm atmosphere. The carved face becomes a focal point without being overwhelming. Good for: Asian restaurants, Thai/Balinese resorts, spa restaurants, anywhere blending dining with wellness aesthetic.`
+    description: `Buddha mandala in restaurant setting — spiritual imagery in hospitality. Good for: Asian restaurants, Thai/Balinese resorts, spa restaurants, dining with wellness aesthetic.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // MARILYN - Custom portrait capability demonstration
-  // ═══════════════════════════════════════════════════════════════
-  
+  // MARILYN
   {
     id: 'marilyn-1',
     pattern: 'Custom Portrait',
+    title: 'Marilyn Portrait',
     sector: 'Entertainment',
     image: `${CLOUDINARY_BASE}/Marilyn_1_copy_eka0g1.png`,
     price: 150,
-    description: `Marilyn Monroe portrait carved into Corian — demonstrates our custom portrait capability. Any image can become a carved surface: celebrities, brand icons, personal photos, historical figures. This is POP ART you can build. Good for: entertainment venues, celebrity chef restaurants, brand experiences, collectors, anyone wanting custom imagery as architecture. We can carve ANY portrait — just send us the image.`
+    description: `Marilyn Monroe portrait carved into Corian — demonstrates custom portrait capability. Any image can become carved surface. Good for: entertainment venues, brand experiences, pop art architecture.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // FINS - Exterior facade system, sculptural fins
-  // ═══════════════════════════════════════════════════════════════
-  
-  {
-    id: 'fins-1',
-    pattern: 'Fins',
-    sector: 'Corporate',
-    image: `${CLOUDINARY_BASE}/Fins_Sandune_texture_Curved_black_m1vtil.png`,
-    price: 75,
-    description: `Fins pattern on exterior/entry — vertical sculptural elements creating rhythm and shadow play. This is architectural-scale texture for building envelopes and entry moments. The fins provide solar shading while creating dramatic visual impact. Good for: corporate headquarters facades, resort entries, parking structures needing visual interest, exterior feature walls, anywhere wanting sculptural presence at building scale. Think: parametric architecture, contemporary office buildings, dramatic arrivals.`
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  // FLAME - Vertical flowing waves that interweave and cross
-  // ═══════════════════════════════════════════════════════════════
-  
-  {
-    id: 'flame-lobby',
-    pattern: 'Flame',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Flame_pattern_texture_copy_efghij.png`,
-    price: 100,
-    description: `Flame pattern — vertical flowing waves that interweave and cross with varying widths. Different from Billow's horizontal calm, Flame moves vertically with energy and movement. The waves merge and separate creating organic complexity. Good for: hotel lobbies, casino entries, corporate headquarters wanting dramatic presence, anywhere backlighting creates evening drama. The vertical movement draws the eye up, elongating spaces.`
-  },
-  
-  {
-    id: 'flame-headboard',
-    pattern: 'Flame',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Flame_headboard_warm_copy_stuvwx.png`,
-    price: 100,
-    description: `Flame as bedroom headboard wall — the flowing vertical waves create organic movement behind the bed. Warm white cove lighting from above, boutique hotel aesthetic. This is RESIDENTIAL luxury. Good for: primary bedrooms, master suites, boutique hotels, anywhere wanting the bed to feel like a destination. Romantic, organic, serene, intimate.`
-  },
-  
-  {
-    id: 'flame-pink',
-    pattern: 'Flame',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Flame_headboard_pink_copy_yzabcd.png`,
-    price: 100,
-    description: `Flame headboard in pink RGB mode — same pattern, completely different mood. Shows the versatility of RGB backlighting: warm white for calm evenings, pink/red for romance, blue for cool modern. Good for: residential clients wanting programmable mood lighting, boutique hotels wanting room customization, playful luxury, romantic settings.`
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  // DESERT SUNSET - Arizona/Southwest regional custom design
-  // ═══════════════════════════════════════════════════════════════
-  
-  {
-    id: 'desert-sunset-1',
-    pattern: 'Desert Sunset',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Desert_cactus_resort_lobby_copy_klmnop.png`,
-    price: 100,
-    description: `Desert Sunset in a Scottsdale-style resort lobby — saguaro cactus silhouettes against carved mountain ridges with warm sunset backlighting. This is REGIONAL IDENTITY design. The pattern connects guests to place before they even step outside. Good for: Arizona resorts, Southwest hospitality, desert spas, anywhere wanting to evoke the American Southwest. This should match: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, new mexico, mesa, sedona, resort, hotel, warm, sunset, regional, local, cacti, sonoran, mojave, palm springs, las vegas, nevada, texas, ranch, western, cowboy, adobe, terracotta.`
-  },
-  
-  {
-    id: 'desert-sunset-2',
-    pattern: 'Desert Sunset',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/mr-render-1768084337564_copy_k4ihhj.png`,
-    price: 100,
-    description: `Desert Sunset with prominent cactus silhouettes — this version emphasizes the iconic saguaro shapes against the glowing sky. More dramatic cactus presence than the first image. Good for: boutique desert hotels, Arizona spa resorts, Southwest restaurant branding, anywhere the cactus silhouette IS the statement. Think: desert wellness retreat, ranch resort, southwestern luxury, Arizona hospitality.`
-  },
-  
-  {
-    id: 'desert-sunset-3',
-    pattern: 'Desert Sunset',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/IzWQuibirwnFxWcm4KoFs_copy_kiypvi.png`,
-    price: 100,
-    description: `Desert Sunset abstract variation — more stylized take on the desert landscape, flowing mountain forms without literal cactus imagery. Works for clients wanting desert FEELING without literal representation. Good for: corporate spaces in Southwest markets, modern takes on regional identity, anywhere wanting warmth and organic flow with subtle Southwest influence.`
-  },
-
-  // ═══════════════════════════════════════════════════════════════
-  // SAND DUNE - Horizontal organic waves, thermoformable
-  // ═══════════════════════════════════════════════════════════════
-  
+  // SAND DUNE
   {
     id: 'sanddune-curved-black',
     pattern: 'Sand Dune',
+    title: 'Sand Dune Curved',
     sector: 'Hospitality',
     image: `${CLOUDINARY_BASE}/Fins_Sandune_texture_Curved_black_m1vtil.png`,
     price: 75,
-    description: `Sand Dune wrapped around a curved column in black Corian — thermoformed into a cylinder, showing what's possible with heat-shaping. The horizontal waves follow the curve perfectly. Golden hour light catches the ridges. Good for: resort entry columns, curved walls, anywhere needing organic texture on non-flat surfaces. This pattern WRAPS — it's not limited to flat walls. Dramatic, sculptural, architectural.`
+    description: `Sand Dune wrapped around curved column in black — thermoformed cylinder. This pattern WRAPS non-flat surfaces. Good for: resort entry columns, curved walls, dramatic arrivals.`
   },
-  
   {
     id: 'sanddune-blue-spa',
     pattern: 'Sand Dune',
+    title: 'Sand Dune Blue Spa',
     sector: 'Wellness',
     image: `${CLOUDINARY_BASE}/mr-render-1767992780170_ufyyef.png`,
     price: 100,
-    description: `Sand Dune with blue RGB backlighting in a spa setting — the horizontal waves glow aquatic blue, stone tub in foreground, bamboo accents. This is ZEN LUXURY. The blue light evokes water, ocean, calm. Good for: spas, wellness centers, meditation rooms, anywhere wanting calming + aquatic + luxurious. Think: high-end resort spa, wellness retreat, luxury bathroom, soaking tub feature wall, tranquil, serene, peaceful, relaxing.`
+    description: `Sand Dune with blue RGB backlighting in spa — horizontal waves glow aquatic blue. ZEN LUXURY. Good for: spas, wellness centers, meditation rooms, calming + aquatic + luxurious, soaking tub feature walls.`
   },
-  
   {
     id: 'sanddune-onsen',
     pattern: 'Sand Dune',
+    title: 'Sand Dune Onsen',
     sector: 'Wellness',
     image: `${CLOUDINARY_BASE}/mr-render-1767989995638_copy_vtszj0.png`,
     price: 75,
-    description: `Sand Dune as water feature in a Japanese-style onsen — water cascades down the carved gray surface into the soaking pool. Cedar timbers, rolled towels, shoji screen feeling. This is JAPANESE SPA aesthetic. Good for: onsen-style spas, Japanese restaurants, ryokan-inspired hospitality, anywhere wanting zen + water + Japanese influence. This should match: japanese, onsen, zen, bath, soaking, hot spring, ryokan, minimalist, calm, peaceful, gray, water feature, asian, oriental, bamboo, timber, wood, natural, organic, tranquil.`
-  },
-  
-  {
-    id: 'sanddune-purple-spa',
-    pattern: 'Sand Dune',
-    sector: 'Wellness',
-    image: `${CLOUDINARY_BASE}/sanddune_spa_purple_copy_qrstuv.png`,
-    price: 100,
-    description: `Sand Dune at spa pool edge with purple RGB backlighting — a guest soaks while the purple-lit waves glow behind. Shows human scale and the experiential quality of these installations. The purple creates moody, luxurious atmosphere. Good for: high-end spas, wellness centers wanting evening drama, anywhere purple/violet mood lighting fits. Romantic, luxurious, dramatic.`
+    description: `Sand Dune as water feature in Japanese onsen — water cascades down carved gray surface. Cedar timbers, shoji screen feeling. JAPANESE SPA aesthetic. Good for: onsen-style spas, Japanese restaurants, ryokan hospitality. MATCHES: japanese, onsen, zen, bath, soaking, hot spring, ryokan, minimalist, peaceful, asian, bamboo.`
   },
 
-  // ═══════════════════════════════════════════════════════════════
-  // LAKE - Concentric ripples radiating outward
-  // ═══════════════════════════════════════════════════════════════
-  
+  // DESERT SUNSET - Using REAL Cloudinary URLs that exist
   {
-    id: 'lake-1',
-    pattern: 'Lake',
+    id: 'desert-sunset-1',
+    pattern: 'Desert Sunset',
+    title: 'Desert Cactus',
     sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Lake_ripple_render_copy_abcdef.png`,
-    price: 50,
-    description: `Lake pattern — concentric ripples radiating outward like a stone dropped in still water. One of our most calming patterns. The circular geometry creates a focal point that draws the eye to center. Good for: meditation spaces, spa reception, lobbies, anywhere wanting the feeling of calm water, peaceful, serene environments. Works beautifully with backlighting — the ripples glow in rings. This should match: lake, ripple, water, calm, peaceful, zen, concentric, circles, meditation, tranquil, still, serene, quiet.`
+    image: `${CLOUDINARY_BASE}/mr-render-1768084337564_copy_k4ihhj.png`,
+    price: 100,
+    description: `Desert Sunset — saguaro cactus silhouettes against carved mountain ridges with warm sunset backlighting. REGIONAL IDENTITY for Southwest hospitality. Good for: Arizona resorts, desert spas, Southwest hotels. MATCHES: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, sedona, mesa, cacti, sonoran, mojave, palm springs, las vegas, ranch, western.`
+  },
+  {
+    id: 'desert-sunset-2',
+    pattern: 'Desert Sunset',
+    title: 'Desert Abstract',
+    sector: 'Hospitality',
+    image: `${CLOUDINARY_BASE}/IzWQuibirwnFxWcm4KoFs_copy_kiypvi.png`,
+    price: 100,
+    description: `Desert Sunset abstract — stylized desert landscape, flowing mountain forms. Desert FEELING without literal cactus. Good for: corporate in Southwest markets, modern regional identity.`
   }
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MARA SYSTEM PROMPT - Claude reasons over descriptions, not keywords
+// MARA SYSTEM PROMPT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-const MARA_SYSTEM_PROMPT = `You are Mara, the MR Walls design assistant. You help architects and designers explore carved Corian wall surfaces.
+const MARA_SYSTEM_PROMPT = `You are Mara, the MR Walls design assistant. You help architects explore carved Corian wall surfaces.
 
-## WHO YOU ARE
+## PERSONALITY
+Warm, knowledgeable, loves design. Not salesy — helpful and proud of the work.
 
-You're warm, knowledgeable, and genuinely love design. You nerd out on both aesthetics AND construction details. You're not salesy — you're helpful, curious, and proud of this work.
+## RESPONSE FORMAT
+1. **BRIEF** — 2-3 sentences max, 40 words
+2. **PICK 1-2 IMAGES** — Read intent, show best matches
+3. **USE [Image: id] TAGS** — Always include image tags
+4. **ONE QUESTION** — End with one follow-up
 
-## HOW YOU RESPOND
+## INTENT REASONING
+- "southwest" or "arizona" or "cactus" → Desert Sunset
+- "zen" or "meditation" or "peaceful" or "buddha" → Buddha Mandala
+- "japanese" or "onsen" → Sand Dune Onsen  
+- "dramatic" or "bold" or "black" → Billow Black or Great Wave
+- "water feature" or "pool" or "fountain" → Brick water features
+- "healthcare" or "hospital" → Seattle
+- "spa" or "wellness" → Buddha or Sand Dune Blue Spa
 
-1. **BRIEF.** 2-3 sentences max. 40 words. Say less, let them ask more.
+## AVAILABLE IMAGES
+${IMAGE_CATALOG.map(img => `- ${img.id}: ${img.pattern} - ${img.description.slice(0, 100)}...`).join('\n')}
 
-2. **PICK THE BEST IMAGE.** Read the user's intent — not just their words. 
-   - "southwest" → they want Arizona/desert feel → show Desert Sunset
-   - "cactas" (misspelled) → they mean cactus → show Desert Sunset
-   - "something peaceful" → zen, calm → show Buddha or Sand Dune onsen
-   - "japanese feeling" → zen, minimalist → show Sand Dune onsen
-   
-3. **USE [Image: id] TAGS.** Always include exactly ONE image in your response.
-   Example: [Image: desert-sunset-1]
+Example response:
+"For Southwest hospitality, Desert Sunset is perfect — saguaro cactus silhouettes against warm sunset backlighting.
 
-4. **ONE FOLLOW-UP QUESTION.** End with one specific question to narrow down their needs.
+[Image: desert-sunset-1]
 
-5. **DON'T EXPLAIN THE SYSTEM.** Never say "I don't have that pattern" — find the closest match and be helpful.
-
-## REASONING OVER INTENT
-
-When someone asks for something, think about what they REALLY want:
-- "warm" → golden backlighting, hospitality, wood tones → Flame, Desert Sunset
-- "dramatic" → black, bold, statement → Billow Black, Great Wave
-- "calming" → gentle waves, spa, meditation → Buddha, Sand Dune, Lake
-- "water" → water features, pools, fountains → Brick water features
-- "healthcare" → cleanable, calming, code-compliant → Seattle
-- "corporate" → professional, sophisticated → Billow, Great Wave corporate
-- "residential" → bedrooms, bathrooms, homes → Great Wave shower, Flame headboard
-
-## IMAGE CATALOG
-
-${JSON.stringify(IMAGE_CATALOG.map(img => ({ id: img.id, pattern: img.pattern, sector: img.sector, description: img.description })), null, 2)}
-
-Remember: Read their intent, pick the best match, keep it brief, ask ONE question.`;
+Is this for a lobby statement wall or throughout guest areas?"`;
 
 // ═══════════════════════════════════════════════════════════════════════════════
 // COMPONENT
 // ═══════════════════════════════════════════════════════════════════════════════
 
-export default function MaraV9() {
+export default function MaraV10() {
   const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
@@ -400,10 +295,13 @@ export default function MaraV9() {
     if (!loading) inputRef.current?.focus();
   }, [loading]);
 
-  // Extract image ID from Claude's response
-  const extractImageId = (text) => {
-    const match = text.match(/\[Image:\s*([^\]]+)\]/i);
-    return match ? match[1].trim() : null;
+  // Extract image IDs from response
+  const extractImageIds = (text) => {
+    const matches = text.match(/\[Image:\s*([^\]]+)\]/gi) || [];
+    return matches.map(m => {
+      const match = m.match(/\[Image:\s*([^\]]+)\]/i);
+      return match ? match[1].trim() : null;
+    }).filter(Boolean);
   };
 
   // Find image by ID
@@ -416,7 +314,7 @@ export default function MaraV9() {
     );
   };
 
-  // Clean response text (remove image tags)
+  // Clean response text
   const cleanResponse = (text) => {
     return text.replace(/\[Image:\s*[^\]]+\]/gi, '').trim();
   };
@@ -452,6 +350,36 @@ export default function MaraV9() {
     throw new Error(data.error?.message || 'API error');
   };
 
+  // Simple fallback image selection
+  const getFallbackImages = (query) => {
+    const lower = query.toLowerCase();
+    
+    if (lower.includes('desert') || lower.includes('southwest') || lower.includes('cactus') || lower.includes('arizona') || lower.includes('scottsdale')) {
+      return IMAGE_CATALOG.filter(i => i.pattern === 'Desert Sunset');
+    }
+    if (lower.includes('buddha') || lower.includes('zen') || lower.includes('meditation') || lower.includes('spiritual')) {
+      return IMAGE_CATALOG.filter(i => i.pattern === 'Buddha Mandala');
+    }
+    if (lower.includes('japanese') || lower.includes('onsen') || lower.includes('ryokan')) {
+      return IMAGE_CATALOG.filter(i => i.id === 'sanddune-onsen');
+    }
+    if (lower.includes('water') || lower.includes('pool') || lower.includes('fountain')) {
+      return IMAGE_CATALOG.filter(i => i.pattern === 'Brick');
+    }
+    if (lower.includes('healthcare') || lower.includes('hospital') || lower.includes('clinic')) {
+      return IMAGE_CATALOG.filter(i => i.pattern === 'Seattle');
+    }
+    if (lower.includes('dramatic') || lower.includes('bold') || lower.includes('black') || lower.includes('corporate')) {
+      return [findImage('billow-black'), findImage('greatwave-4')].filter(Boolean);
+    }
+    if (lower.includes('spa') || lower.includes('wellness') || lower.includes('calm')) {
+      return [findImage('buddha-1'), findImage('sanddune-blue-spa')].filter(Boolean);
+    }
+    
+    // Default: show variety
+    return [IMAGE_CATALOG[0], IMAGE_CATALOG[6]];
+  };
+
   // Send message
   const sendMessage = async () => {
     if (!input.trim() || loading) return;
@@ -465,58 +393,47 @@ export default function MaraV9() {
 
     try {
       const response = await callClaude(userMessage, messages);
-      const imageId = extractImageId(response);
-      const image = findImage(imageId);
+      const imageIds = extractImageIds(response);
+      const images = imageIds.map(id => findImage(id)).filter(Boolean);
       const cleanText = cleanResponse(response);
+
+      // If Claude didn't return valid images, use fallback
+      const finalImages = images.length > 0 ? images : getFallbackImages(userMessage);
 
       setMessages([...newMessages, {
         role: 'assistant',
         text: cleanText,
-        image: image
+        images: finalImages.slice(0, 2)
       }]);
     } catch (error) {
       console.error('Error:', error);
-      // Fallback: show a relevant image based on simple matching
-      const lower = userMessage.toLowerCase();
-      let fallbackImage = IMAGE_CATALOG[0];
-      
-      if (lower.includes('desert') || lower.includes('southwest') || lower.includes('cactus') || lower.includes('arizona')) {
-        fallbackImage = IMAGE_CATALOG.find(i => i.pattern === 'Desert Sunset') || IMAGE_CATALOG[0];
-      } else if (lower.includes('buddha') || lower.includes('zen') || lower.includes('meditation')) {
-        fallbackImage = IMAGE_CATALOG.find(i => i.pattern === 'Buddha Mandala') || IMAGE_CATALOG[0];
-      } else if (lower.includes('water') || lower.includes('pool') || lower.includes('fountain')) {
-        fallbackImage = IMAGE_CATALOG.find(i => i.pattern === 'Brick') || IMAGE_CATALOG[0];
-      } else if (lower.includes('healthcare') || lower.includes('hospital')) {
-        fallbackImage = IMAGE_CATALOG.find(i => i.pattern === 'Seattle') || IMAGE_CATALOG[0];
-      }
-
+      const fallbackImages = getFallbackImages(userMessage);
       setMessages([...newMessages, {
         role: 'assistant',
-        text: "Here's something that might work — tell me more about what you're looking for.",
-        image: fallbackImage
+        text: "Here's what I'd recommend — tell me more about your project.",
+        images: fallbackImages.slice(0, 2)
       }]);
     } finally {
       setLoading(false);
     }
   };
 
-  // Initial greeting
+  // Initial greeting with 2 images
   useEffect(() => {
-    const greeting = {
+    setMessages([{
       role: 'assistant',
       text: "Hey! I'm Mara from MR Walls. I help architects explore carved wall surfaces. What kind of space are you working on?",
       images: [IMAGE_CATALOG[0], IMAGE_CATALOG[6]] // Billow and Great Wave
-    };
-    setMessages([greeting]);
+    }]);
   }, []);
 
   return (
     <div className="h-screen bg-stone-950 text-stone-100 flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       
       {/* Header */}
-      <header className="border-b border-stone-800 bg-stone-950/90 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-rose-600 to-pink-700 flex items-center justify-center">
-          <span className="text-lg font-bold text-white">M</span>
+      <header className="flex-shrink-0 border-b border-stone-800 bg-stone-950/90 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-stone-700 to-stone-800 flex items-center justify-center">
+          <span className="text-sm font-bold text-stone-300">M|R</span>
         </div>
         <div>
           <h1 className="text-base font-semibold text-stone-100">Mara</h1>
@@ -524,11 +441,11 @@ export default function MaraV9() {
         </div>
       </header>
 
-      {/* Messages */}
+      {/* Messages - scrollable area */}
       <main className="flex-1 overflow-y-auto p-4 space-y-4">
         {messages.map((msg, i) => (
           <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className={`max-w-[85%] ${msg.role === 'user' ? '' : ''}`}>
+            <div className="max-w-2xl">
               
               {/* Text bubble */}
               <div className={`rounded-2xl px-4 py-3 ${
@@ -539,46 +456,30 @@ export default function MaraV9() {
                 <p className="text-sm leading-relaxed">{msg.text}</p>
               </div>
 
-              {/* Single image */}
-              {msg.image && (
-                <div className="mt-3">
-                  <div
-                    onClick={() => setSelectedImage(msg.image)}
-                    className="cursor-pointer rounded-xl overflow-hidden border border-stone-800 hover:border-stone-600 transition-all hover:scale-[1.02]"
-                  >
-                    <div className="aspect-[3/4] bg-stone-900 relative">
-                      <img
-                        src={msg.image.image}
-                        alt={msg.image.pattern}
-                        className="w-full h-full object-cover"
-                      />
-                    </div>
-                    <div className="p-3 bg-stone-900">
-                      <h3 className="font-medium text-stone-100">{msg.image.pattern}</h3>
-                      <p className="text-xs text-stone-500 mt-1">{msg.image.sector} • ${msg.image.price}/SF</p>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Multiple images (greeting) */}
-              {msg.images && (
+              {/* 2-up Image Grid - SMALLER like Screenshot 4 */}
+              {msg.images && msg.images.length > 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-3">
                   {msg.images.map((img, j) => (
                     <div
                       key={j}
                       onClick={() => setSelectedImage(img)}
-                      className="cursor-pointer rounded-xl overflow-hidden border border-stone-800 hover:border-stone-600 transition-all hover:scale-[1.02]"
+                      className="cursor-pointer rounded-xl overflow-hidden border border-stone-800 hover:border-stone-600 transition-all hover:scale-[1.02] bg-stone-900"
                     >
-                      <div className="aspect-[3/4] bg-stone-900">
+                      {/* Image - constrained height */}
+                      <div className="aspect-square bg-stone-800 relative">
                         <img
                           src={img.image}
-                          alt={img.pattern}
+                          alt={img.title}
                           className="w-full h-full object-cover"
+                          onError={(e) => {
+                            e.target.style.display = 'none';
+                            e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-stone-600 text-4xl">◇</div>';
+                          }}
                         />
                       </div>
-                      <div className="p-2 bg-stone-900">
-                        <h3 className="text-sm font-medium text-stone-100">{img.pattern}</h3>
+                      {/* Title bar */}
+                      <div className="p-3">
+                        <h3 className="text-sm font-medium text-stone-100 truncate">{img.title}</h3>
                         <p className="text-xs text-stone-500">{img.sector} • ${img.price}/SF</p>
                       </div>
                     </div>
@@ -605,9 +506,9 @@ export default function MaraV9() {
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Input */}
-      <footer className="border-t border-stone-800 bg-stone-950 p-4">
-        <div className="flex gap-3">
+      {/* Input - always visible at bottom */}
+      <footer className="flex-shrink-0 border-t border-stone-800 bg-stone-950 p-4">
+        <div className="max-w-2xl mx-auto flex gap-3">
           <input
             ref={inputRef}
             type="text"
@@ -628,44 +529,51 @@ export default function MaraV9() {
         </div>
       </footer>
 
-      {/* Specs Modal */}
+      {/* Specs Modal - on image click */}
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
           onClick={() => setSelectedImage(null)}
         >
           <div 
-            className="bg-stone-900 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-hidden"
+            className="bg-stone-900 rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
-            <div className="aspect-[4/3] bg-stone-800">
+            <div className="aspect-[4/3] bg-stone-800 relative">
               <img
                 src={selectedImage.image}
-                alt={selectedImage.pattern}
+                alt={selectedImage.title}
                 className="w-full h-full object-cover"
               />
+              {/* Close button */}
+              <button
+                onClick={() => setSelectedImage(null)}
+                className="absolute top-3 right-3 w-8 h-8 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70"
+              >
+                ✕
+              </button>
             </div>
 
             {/* Details */}
-            <div className="p-6">
+            <div className="p-5">
               <div className="flex items-start justify-between mb-4">
                 <div>
-                  <h2 className="text-2xl font-semibold text-stone-100">{selectedImage.pattern}</h2>
-                  <p className="text-stone-400 mt-1">{selectedImage.sector}</p>
+                  <h2 className="text-xl font-semibold text-stone-100">{selectedImage.title}</h2>
+                  <p className="text-stone-400 text-sm">{selectedImage.pattern} • {selectedImage.sector}</p>
                 </div>
-                <span className="text-2xl font-bold text-rose-400">${selectedImage.price}/SF</span>
+                <span className="text-xl font-bold text-emerald-400">${selectedImage.price}/SF</span>
               </div>
 
               {/* Specs grid */}
-              <div className="grid grid-cols-2 gap-4 mb-6">
+              <div className="grid grid-cols-2 gap-3 mb-5">
                 <div className="bg-stone-800 rounded-lg p-3">
                   <p className="text-xs text-stone-500 uppercase tracking-wide">Max Panel</p>
                   <p className="text-sm text-stone-200 mt-1">144" × 60"</p>
                 </div>
                 <div className="bg-stone-800 rounded-lg p-3">
                   <p className="text-xs text-stone-500 uppercase tracking-wide">Material</p>
-                  <p className="text-sm text-stone-200 mt-1">Corian®</p>
+                  <p className="text-sm text-stone-200 mt-1">DuPont Corian®</p>
                 </div>
                 <div className="bg-stone-800 rounded-lg p-3">
                   <p className="text-xs text-stone-500 uppercase tracking-wide">Lead Time</p>
@@ -679,20 +587,17 @@ export default function MaraV9() {
 
               {/* Actions */}
               <div className="flex gap-3">
-                <button className="flex-1 py-3 bg-white text-stone-900 rounded-xl font-medium hover:bg-stone-100 transition-colors">
-                  Download Specs
+                <button className="flex-1 py-3 bg-white text-stone-900 rounded-xl font-medium text-sm hover:bg-stone-100 transition-colors">
+                  📄 Download Specs
                 </button>
-                <button className="flex-1 py-3 bg-rose-600 text-white rounded-xl font-medium hover:bg-rose-500 transition-colors">
-                  Request Quote
+                <button className="flex-1 py-3 bg-emerald-600 text-white rounded-xl font-medium text-sm hover:bg-emerald-500 transition-colors">
+                  📐 Shop Drawing
                 </button>
               </div>
 
-              {/* Close */}
-              <button
-                onClick={() => setSelectedImage(null)}
-                className="mt-4 w-full py-2 text-stone-500 text-sm hover:text-stone-300 transition-colors"
-              >
-                Close
+              {/* Request Quote */}
+              <button className="mt-3 w-full py-3 border border-stone-700 text-stone-300 rounded-xl font-medium text-sm hover:bg-stone-800 transition-colors">
+                Request Quote
               </button>
             </div>
           </div>
