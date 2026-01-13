@@ -275,23 +275,23 @@ export default function MaraV9() {
               
               {/* Images grid - only for assistant */}
               {msg.images && msg.images.length > 0 && (
-                <div className={`mt-4 grid gap-3 ${msg.images.length === 1 ? 'grid-cols-1 max-w-md' : 'grid-cols-2'}`}>
+                <div className={`mt-4 grid gap-4 ${msg.images.length === 1 ? 'grid-cols-1' : 'grid-cols-2'}`}>
                   {msg.images.map((img, j) => (
                     <button
                       key={j}
                       onClick={() => setSelectedImage(img)}
-                      className="group text-left rounded-xl overflow-hidden bg-stone-900 border border-stone-800 hover:border-stone-600 transition-all"
+                      className="group text-left rounded-2xl overflow-hidden bg-stone-900 border border-stone-800 hover:border-stone-600 transition-all"
                     >
-                      <div className="aspect-[4/3] overflow-hidden">
+                      <div className="aspect-[3/4] overflow-hidden">
                         <img 
                           src={img.image} 
                           alt={img.pattern}
-                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                         />
                       </div>
-                      <div className="p-3">
-                        <h3 className="font-medium text-sm text-white">{img.pattern}</h3>
-                        <p className="text-xs text-stone-500">{img.sector} • ${img.price}/SF</p>
+                      <div className="p-4">
+                        <h3 className="font-medium text-base text-white">{img.pattern}</h3>
+                        <p className="text-sm text-stone-500 mt-1">{img.sector} • ${img.price}/SF</p>
                       </div>
                     </button>
                   ))}
@@ -338,43 +338,82 @@ export default function MaraV9() {
         </div>
       </div>
       
-      {/* Image Detail Modal */}
+      {/* Image Detail Modal with Specs */}
       {selectedImage && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={() => setSelectedImage(null)}>
-          <div className="max-w-4xl w-full max-h-[90vh] flex flex-col" onClick={(e) => e.stopPropagation()}>
-            
-            {/* Image */}
-            <div className="flex-1 min-h-0 flex items-center justify-center">
-              <img 
-                src={selectedImage.image} 
-                alt={selectedImage.pattern}
-                className="max-w-full max-h-[70vh] object-contain rounded-lg"
-              />
-            </div>
-            
-            {/* Info bar */}
-            <div className="mt-4 bg-stone-900 rounded-xl p-4 flex items-center justify-between">
-              <div>
-                <h2 className="text-xl font-medium text-white">{selectedImage.pattern}</h2>
-                <p className="text-sm text-stone-400">{selectedImage.description}</p>
-              </div>
-              <div className="flex items-center gap-3">
-                <span className="text-xs px-3 py-1.5 bg-stone-800 text-stone-300 rounded-full">{selectedImage.sector}</span>
-                <span className="text-lg font-medium text-rose-400">${selectedImage.price}/SF</span>
-              </div>
-            </div>
-            
-            {/* Actions */}
-            <div className="mt-3 flex gap-3">
-              <button className="flex-1 py-3 bg-white text-black rounded-xl font-medium text-sm hover:bg-stone-200">
-                Get Specs
-              </button>
+        <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto" onClick={() => setSelectedImage(null)}>
+          <div className="min-h-screen flex items-center justify-center p-6">
+            <div className="max-w-5xl w-full" onClick={(e) => e.stopPropagation()}>
+              
+              {/* Close button */}
               <button 
                 onClick={() => setSelectedImage(null)}
-                className="flex-1 py-3 bg-stone-800 text-white rounded-xl font-medium text-sm hover:bg-stone-700"
+                className="absolute top-6 right-6 w-10 h-10 rounded-full bg-stone-800 flex items-center justify-center text-stone-400 hover:text-white hover:bg-stone-700 transition-colors"
               >
-                Back to Chat
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
               </button>
+              
+              {/* Large Image */}
+              <div className="rounded-2xl overflow-hidden bg-stone-900">
+                <img 
+                  src={selectedImage.image} 
+                  alt={selectedImage.pattern}
+                  className="w-full max-h-[60vh] object-contain bg-stone-950"
+                />
+              </div>
+              
+              {/* Specs Panel */}
+              <div className="mt-6 bg-stone-900 rounded-2xl p-6 border border-stone-800">
+                <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-6">
+                  
+                  {/* Left - Title & Description */}
+                  <div className="flex-1">
+                    <h2 className="text-2xl font-medium text-white">{selectedImage.pattern}</h2>
+                    <p className="text-stone-400 mt-2">{selectedImage.description}</p>
+                    <div className="flex gap-2 mt-4">
+                      <span className="text-xs px-3 py-1.5 bg-stone-800 text-stone-300 rounded-full">{selectedImage.sector}</span>
+                    </div>
+                  </div>
+                  
+                  {/* Right - Specs Grid */}
+                  <div className="grid grid-cols-2 gap-3 md:w-72">
+                    <div className="bg-stone-800 rounded-xl p-3">
+                      <p className="text-[10px] uppercase text-stone-500">Max Panel</p>
+                      <p className="text-base text-white font-medium">144" × 60"</p>
+                    </div>
+                    <div className="bg-stone-800 rounded-xl p-3">
+                      <p className="text-[10px] uppercase text-stone-500">Material</p>
+                      <p className="text-base text-white font-medium">Corian®</p>
+                    </div>
+                    <div className="bg-stone-800 rounded-xl p-3">
+                      <p className="text-[10px] uppercase text-stone-500">Lead Time</p>
+                      <p className="text-base text-white font-medium">6-10 weeks</p>
+                    </div>
+                    <div className="bg-stone-800 rounded-xl p-3">
+                      <p className="text-[10px] uppercase text-stone-500">System</p>
+                      <p className="text-base text-white font-medium">InterlockPanel™</p>
+                    </div>
+                  </div>
+                </div>
+                
+                {/* Price Bar */}
+                <div className="mt-6 flex items-center justify-between p-4 bg-rose-950/30 border border-rose-900/50 rounded-xl">
+                  <div>
+                    <p className="text-sm text-stone-400">Starting at</p>
+                    <p className="text-3xl font-medium text-rose-300">${selectedImage.price}/SF</p>
+                  </div>
+                  <div className="flex gap-3">
+                    <button className="px-6 py-3 bg-white text-black rounded-xl font-medium text-sm hover:bg-stone-200 transition-colors">
+                      Download Specs
+                    </button>
+                    <button className="px-6 py-3 bg-rose-600 text-white rounded-xl font-medium text-sm hover:bg-rose-500 transition-colors">
+                      Request Quote
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
             </div>
           </div>
         </div>
