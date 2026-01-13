@@ -472,6 +472,7 @@ export default function MaraV11() {
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
+  const [showMaraPanel, setShowMaraPanel] = useState(false);
   const [showMara, setShowMara] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
@@ -747,10 +748,10 @@ export default function MaraV11() {
       {selectedImage && (
         <div 
           className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          onClick={() => setSelectedImage(null)}
+          onClick={() => { setSelectedImage(null); setShowMaraPanel(false); }}
         >
           <div 
-            className="bg-stone-900 rounded-2xl max-w-md w-full my-4"
+            className={`bg-stone-900 rounded-2xl my-4 relative overflow-hidden transition-all duration-300 w-full ${showMaraPanel ? 'max-w-3xl' : 'max-w-md'}`}
             onClick={(e) => e.stopPropagation()}
           >
             {/* Image */}
@@ -763,7 +764,7 @@ export default function MaraV11() {
                 />
               </div>
               <button
-                onClick={() => setSelectedImage(null)}
+                onClick={() => { setSelectedImage(null); setShowMaraPanel(false); }}
                 className="absolute top-3 right-3 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors"
               >
                 ✕
@@ -811,10 +812,15 @@ export default function MaraV11() {
                   <p className="text-lg font-medium text-stone-100 mt-1">{selectedImage.specs.leadTime}</p>
                 </div>
                 
-                {/* Price */}
+                {/* Price - Total prominent, per SF small */}
                 <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Price per SF</p>
-                  <p className="text-lg font-medium text-emerald-400 mt-1">${selectedImage.specs.pricePerSF}</p>
+                  <p className="text-xs text-stone-500 uppercase tracking-wide">Price</p>
+                  <p className="text-lg font-medium text-emerald-400 mt-1">
+                    ${(selectedImage.specs.sf ? selectedImage.specs.sf * selectedImage.specs.pricePerSF : 0).toLocaleString()}
+                  </p>
+                  <p className="text-xs text-stone-500 mt-1">
+                    approx ${selectedImage.specs.pricePerSF} per SF
+                  </p>
                 </div>
               </div>
 
@@ -853,12 +859,75 @@ export default function MaraV11() {
 
               {/* Mara Help */}
               <button 
-                onClick={() => { setSelectedImage(null); inputRef.current?.focus(); }}
+                onClick={() => setShowMaraPanel(true)}
                 className="mt-3 w-full py-2 text-stone-500 text-sm hover:text-stone-300 transition-colors flex items-center justify-center gap-2"
               >
                 💬 Questions? Ask Mara
               </button>
             </div>
+
+            {/* Mara Chat Panel - slides in from right */}
+            {showMaraPanel && (
+              <div className="absolute inset-y-0 right-0 w-80 bg-stone-950 border-l border-stone-700 flex flex-col rounded-r-2xl">
+                {/* Panel Header */}
+                <div className="flex items-center justify-between p-4 border-b border-stone-800">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-800 flex items-center justify-center">
+                      <span className="text-xs font-bold text-stone-300">M</span>
+                    </div>
+                    <span className="text-sm font-medium text-stone-200">Mara</span>
+                  </div>
+                  <button 
+                    onClick={() => setShowMaraPanel(false)}
+                    className="text-stone-500 hover:text-stone-300 text-lg"
+                  >
+                    ✕
+                  </button>
+                </div>
+                
+                {/* Mara Message */}
+                <div className="flex-1 p-4 overflow-y-auto">
+                  <div className="bg-stone-900 border border-stone-800 rounded-xl p-3">
+                    <p className="text-sm text-stone-300 leading-relaxed">
+                      Any questions about <span className="text-stone-100 font-medium">{selectedImage.title}</span>? 
+                    </p>
+                    <p className="text-sm text-stone-400 mt-2 leading-relaxed">
+                      I can help you with install questions, technical information, or if you need a 3D model or clean swatch for your plans.
+                    </p>
+                  </div>
+                  
+                  {/* Quick question buttons */}
+                  <div className="mt-4 space-y-2">
+                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
+                      How does installation work?
+                    </button>
+                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
+                      Can I get a 3D model?
+                    </button>
+                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
+                      Do you have material samples?
+                    </button>
+                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
+                      What's the lead time?
+                    </button>
+                  </div>
+                </div>
+                
+                {/* Input */}
+                <div className="p-3 border-t border-stone-800">
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      placeholder="Ask a question..."
+                      className="flex-1 px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-xs text-stone-100 placeholder-stone-500 focus:outline-none focus:border-stone-500"
+                    />
+                    <button className="px-3 py-2 bg-stone-100 text-stone-900 rounded-lg text-xs font-medium hover:bg-white transition-colors">
+                      Send
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       )}
