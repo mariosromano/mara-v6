@@ -395,13 +395,14 @@ const IMAGE_CATALOG = [
     sector: 'Hospitality',
     image: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111216/mr-render-1767989995638_copy_vtszj0.png',
     specs: {
-      height: '142"',
-      width: '239¾"',
+      height: "12'",
+      width: "20'",
+      sf: 240,
       slabs: 5,
       material: 'DuPont Corian®',
       color: 'Glacier White',
       leadTime: '4 Weeks',
-      pricePerSF: 65,
+      pricePerSF: 35,
       enhancement: 'Downlighting'
     },
     shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768330379/shop_drawing-Cactus_rovjta.png',
@@ -414,13 +415,14 @@ const IMAGE_CATALOG = [
     sector: 'Hospitality',
     image: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111216/mr-render-1767992780170_ufyyef.png',
     specs: {
-      height: '142"',
-      width: '239¾"',
+      height: "12'",
+      width: "20'",
+      sf: 240,
       slabs: 5,
       material: 'DuPont Corian®',
       color: 'Glacier White',
       leadTime: '4 Weeks',
-      pricePerSF: 65
+      pricePerSF: 35
     },
     shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768330379/shop_drawing-Cactus_rovjta.png',
     description: `Desert Sunset variation — same cactus and mountain pattern, different lighting or context. Southwest regional identity. MATCHES: southwest, arizona, desert, cactus, saguaro, phoenix, scottsdale, resort.`
@@ -789,6 +791,11 @@ export default function MaraV11() {
                   <p className="text-lg font-medium text-stone-100">
                     x {selectedImage.specs.width} wide
                   </p>
+                  {selectedImage.specs.sf && (
+                    <p className="text-sm text-stone-400 mt-1">
+                      {selectedImage.specs.sf} SF
+                    </p>
+                  )}
                 </div>
                 
                 {/* Material */}
