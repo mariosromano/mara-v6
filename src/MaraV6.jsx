@@ -384,45 +384,7 @@ const IMAGE_CATALOG = [
       enhancement: 'Thermoformed'
     },
     shopDrawing: null,
-    description: `Sand Dune wrapped around curved column in black — thermoformed cylinder.`
-  },
-  {
-    id: 'sanddune-blue-spa',
-    pattern: 'Sand Dune',
-    title: 'Sand Dune Blue Spa',
-    sector: 'Wellness',
-    image: `${CLOUDINARY_BASE}/mr-render-1767992780170_ufyyef.png`,
-    specs: {
-      height: '96"',
-      width: '144"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 95,
-      enhancement: 'RGB Backlighting'
-    },
-    shopDrawing: null,
-    description: `Sand Dune with blue RGB backlighting in spa — horizontal waves glow aquatic blue. ZEN LUXURY.`
-  },
-  {
-    id: 'sanddune-onsen',
-    pattern: 'Sand Dune',
-    title: 'Sand Dune Onsen',
-    sector: 'Wellness',
-    image: `${CLOUDINARY_BASE}/mr-render-1767989995638_copy_vtszj0.png`,
-    specs: {
-      height: '96"',
-      width: '180"',
-      slabs: 4,
-      material: 'DuPont Corian®',
-      color: 'Gray',
-      leadTime: '6 Weeks',
-      pricePerSF: 80,
-      enhancement: 'Water Feature'
-    },
-    shopDrawing: null,
-    description: `Sand Dune as water feature in Japanese onsen. JAPANESE SPA aesthetic. MATCHES: japanese, onsen, zen, bath, soaking, hot spring, ryokan, minimalist, peaceful, asian.`
+    description: `Sand Dune wrapped around curved column in black — thermoformed cylinder. Good for: resort entry columns, curved walls, dramatic arrivals. MATCHES: curved, column, thermoform, black, dramatic, sculptural.`
   },
 
   // DESERT SUNSET - WITH FULL SPECS AND SHOP DRAWING
@@ -431,7 +393,7 @@ const IMAGE_CATALOG = [
     pattern: 'Desert Sunset',
     title: 'Desert Sunset Cactus',
     sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/mr-render-1768084337564_copy_k4ihhj.png`,
+    image: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111216/mr-render-1767989995638_copy_vtszj0.png',
     specs: {
       height: '142"',
       width: '239¾"',
@@ -440,29 +402,28 @@ const IMAGE_CATALOG = [
       color: 'Glacier White',
       leadTime: '4 Weeks',
       pricePerSF: 65,
-      enhancement: 'Backlighting'
+      enhancement: 'Downlighting'
     },
-    // Shop drawing hosted on Cloudinary - UPDATE THIS URL after upload
-    shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229/shop_drawing_cactus.png',
-    description: `Desert Sunset — saguaro cactus silhouettes against carved mountain ridges with warm sunset backlighting. REGIONAL IDENTITY for Southwest hospitality. MATCHES: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, sedona, mesa, cacti, sonoran, mojave, palm springs, las vegas, ranch, western.`
+    shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768330379/shop_drawing-Cactus_rovjta.png',
+    description: `Desert Sunset — saguaro cactus silhouettes against carved mountain ridges with warm downlighting. White Corian, coffered ceiling, Scottsdale resort lobby. REGIONAL IDENTITY for Southwest hospitality. MATCHES: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, sedona, mesa, cacti, sonoran, mojave, palm springs, las vegas, ranch, western, resort, hotel, lobby.`
   },
   {
     id: 'desert-sunset-2',
     pattern: 'Desert Sunset',
-    title: 'Desert Abstract',
+    title: 'Desert Sunset Variation',
     sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/IzWQuibirwnFxWcm4KoFs_copy_kiypvi.png`,
+    image: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111216/mr-render-1767992780170_ufyyef.png',
     specs: {
-      height: '120"',
-      width: '200"',
-      slabs: 4,
+      height: '142"',
+      width: '239¾"',
+      slabs: 5,
       material: 'DuPont Corian®',
       color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 60
+      leadTime: '4 Weeks',
+      pricePerSF: 65
     },
-    shopDrawing: null,
-    description: `Desert Sunset abstract — stylized desert landscape, flowing mountain forms.`
+    shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768330379/shop_drawing-Cactus_rovjta.png',
+    description: `Desert Sunset variation — same cactus and mountain pattern, different lighting or context. Southwest regional identity. MATCHES: southwest, arizona, desert, cactus, saguaro, phoenix, scottsdale, resort.`
   }
 ];
 
@@ -484,11 +445,11 @@ Warm, knowledgeable, loves design. Not salesy — helpful and proud of the work.
 ## INTENT REASONING
 - "southwest" or "arizona" or "cactus" → desert-sunset-1
 - "zen" or "meditation" or "peaceful" or "buddha" → buddha-1
-- "japanese" or "onsen" → sanddune-onsen
+- "japanese" or "onsen" → buddha-1 or sanddune-curved-black
 - "dramatic" or "bold" or "black" → billow-black
 - "water feature" or "pool" or "fountain" → brick-water-1
 - "healthcare" or "hospital" → seattle-1
-- "spa" or "wellness" → buddha-1 or sanddune-blue-spa
+- "spa" or "wellness" → buddha-1
 
 ## AVAILABLE IMAGES
 ${IMAGE_CATALOG.map(img => `- ${img.id}: ${img.pattern} - ${img.description.slice(0, 80)}...`).join('\n')}
@@ -587,7 +548,7 @@ export default function MaraV11() {
       return IMAGE_CATALOG.filter(i => i.pattern === 'Buddha Mandala');
     }
     if (lower.includes('japanese') || lower.includes('onsen') || lower.includes('ryokan')) {
-      return IMAGE_CATALOG.filter(i => i.id === 'sanddune-onsen');
+      return [findImage('buddha-1'), findImage('sanddune-curved-black')].filter(Boolean);
     }
     if (lower.includes('water') || lower.includes('pool') || lower.includes('fountain')) {
       return IMAGE_CATALOG.filter(i => i.pattern === 'Brick');
@@ -599,7 +560,7 @@ export default function MaraV11() {
       return [findImage('billow-black'), findImage('greatwave-4')].filter(Boolean);
     }
     if (lower.includes('spa') || lower.includes('wellness') || lower.includes('calm')) {
-      return [findImage('buddha-1'), findImage('sanddune-blue-spa')].filter(Boolean);
+      return [findImage('buddha-1'), findImage('billow-render')].filter(Boolean);
     }
     
     return [IMAGE_CATALOG[0], IMAGE_CATALOG[6]];
