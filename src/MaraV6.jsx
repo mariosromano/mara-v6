@@ -1,12 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MARA V13 - Smart Family Grouping + Accurate Labels + Strict Backlight
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CLOUDINARY_BASE = 'httpimport { useState, useRef, useEffect } from 'react';
-
-// ═══════════════════════════════════════════════════════════════════════════════
 // MARA V13 - Smart Family Grouping + Modal Chat Input
 // ═══════════════════════════════════════════════════════════════════════════════
 
@@ -1365,4 +1359,3 @@ export default function MaraV13() {
     </div>
   );
 }
-
