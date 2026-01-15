@@ -1,713 +1,235 @@
 import { useState, useRef, useEffect } from 'react';
 
-const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111229';
+// Cloudinary base URL
+const CLOUDINARY_BASE = "https://res.cloudinary.com/dtlodxxio/image/upload";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// IMAGE CATALOG - With full spec data for each pattern
-// ═══════════════════════════════════════════════════════════════════════════════
+// Corian color definitions with hex approximations for swatches
+const CORIAN_COLORS = {
+  "Carbon Concrete": { hex: "#3a3a3a", description: "Dark shale grey with particles" },
+  "Dove": { hex: "#9a9a9a", description: "Soft warm grey" },
+  "Neutral Concrete": { hex: "#b8b5b0", description: "Light concrete grey" },
+  "Artista Mist": { hex: "#c5c5c5", description: "Light grey with subtle movement" },
+  "Laguna": { hex: "#1e3a5f", description: "Deep blue" },
+  "Verdant": { hex: "#2d4a4a", description: "Deep teal green" }
+};
 
-const IMAGE_CATALOG = [
-  // BILLOW
-  {
-    id: 'billow-render',
-    pattern: 'Billow',
-    title: 'Billow Wave',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Billow_-_Render-001_copy_ujsmd4.png`,
-    specs: {
-      height: '96"',
-      width: '144"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 50
-    },
-    shopDrawing: null, // Coming soon
-    description: `Billow pattern — gentle horizontal waves like wind across water. Our most versatile organic pattern.`
-  },
-  {
-    id: 'billow-strand',
-    pattern: 'Billow',
-    title: 'Strand House',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/billow-strand-center_copy_scuayc.jpg`,
-    specs: {
-      height: '120"',
-      width: '180"',
-      slabs: 4,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 100,
-      enhancement: 'RGB Backlighting'
-    },
-    shopDrawing: null,
-    description: `Billow at The Strand House restaurant — dramatic backlit bar installation.`
-  },
-  {
-    id: 'billow-black',
-    pattern: 'Billow Black',
-    title: 'Billow Black',
-    sector: 'Corporate',
-    image: `${CLOUDINARY_BASE}/Billow-person-black_copy_inkiga.jpg`,
-    specs: {
-      height: '120"',
-      width: '240"',
-      slabs: 5,
-      material: 'DuPont Corian®',
-      color: 'Deep Nocturne',
-      leadTime: '8 Weeks',
-      pricePerSF: 55
-    },
-    shopDrawing: null,
-    description: `Billow in Deep Nocturne black — bold sculptural presence.`
-  },
-  {
-    id: 'billow-blue',
-    pattern: 'Billow RGB',
-    title: 'Billow Blue RGB',
-    sector: 'Entertainment',
-    image: `${CLOUDINARY_BASE}/billow-backlight-blue-strand-5_copy_gtdcvx.jpg`,
-    specs: {
-      height: '120"',
-      width: '180"',
-      slabs: 4,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 100,
-      enhancement: 'RGB Backlighting'
-    },
-    shopDrawing: null,
-    description: `Billow with blue RGB backlighting — electric blue glow.`
-  },
-
-  // SEATTLE
-  {
-    id: 'seattle-1',
-    pattern: 'Seattle',
-    title: 'Seattle Healthcare',
-    sector: 'Healthcare',
-    image: `${CLOUDINARY_BASE}/Seattle-V2-tile-08_copy_xeyhnc.png`,
-    specs: {
-      height: '96"',
-      width: '96"',
-      slabs: 4,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '4 Weeks',
-      pricePerSF: 45
-    },
-    shopDrawing: null,
-    description: `Seattle modular tiles in healthcare corridor.`
-  },
-  {
-    id: 'seattle-2',
-    pattern: 'Seattle',
-    title: 'Seattle Corridor',
-    sector: 'Healthcare',
-    image: `${CLOUDINARY_BASE}/Seattle-V2-tile-02_bvcqwc.png`,
-    specs: {
-      height: '96"',
-      width: '192"',
-      slabs: 8,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '4 Weeks',
-      pricePerSF: 45
-    },
-    shopDrawing: null,
-    description: `Seattle tiles handling corridor turns.`
-  },
-
-  // GREAT WAVE
-  {
-    id: 'greatwave-1',
-    pattern: 'Great Wave',
-    title: 'Great Wave',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_03_copy_herewl.png`,
-    specs: {
-      height: '120"',
-      width: '240"',
-      slabs: 5,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '8 Weeks',
-      pricePerSF: 65
-    },
-    shopDrawing: null,
-    description: `Great Wave — Hokusai-inspired vertical ribs creating the crashing wave.`
-  },
-  {
-    id: 'greatwave-shower',
-    pattern: 'Great Wave',
-    title: 'Great Wave Shower',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Lim_Great_Wave_shower_contrast_square_copy_yvkh08.jpg`,
-    specs: {
-      height: '96"',
-      width: '120"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 65
-    },
-    shopDrawing: null,
-    description: `Great Wave wrapping a luxury shower — seamless corner to corner.`
-  },
-  {
-    id: 'greatwave-2',
-    pattern: 'Great Wave',
-    title: 'Great Wave Exterior',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_20_copy_abzou8.png`,
-    specs: {
-      height: '144"',
-      width: '288"',
-      slabs: 6,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '10 Weeks',
-      pricePerSF: 75
-    },
-    shopDrawing: null,
-    description: `Great Wave at exterior scale — UV-stable Corian.`
-  },
-  {
-    id: 'greatwave-3',
-    pattern: 'Great Wave',
-    title: 'Great Wave Restaurant',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_09_copy_lcqfa0.png`,
-    specs: {
-      height: '120"',
-      width: '200"',
-      slabs: 5,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '8 Weeks',
-      pricePerSF: 65
-    },
-    shopDrawing: null,
-    description: `Great Wave in restaurant setting.`
-  },
-  {
-    id: 'greatwave-4',
-    pattern: 'Great Wave',
-    title: 'Great Wave Corporate',
-    sector: 'Corporate',
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_16_copy_ojsshm.png`,
-    specs: {
-      height: '120"',
-      width: '240"',
-      slabs: 5,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '8 Weeks',
-      pricePerSF: 65
-    },
-    shopDrawing: null,
-    description: `Great Wave in corporate lobby.`
-  },
-
-  // BRICK WATER FEATURES
-  {
-    id: 'brick-water-1',
-    pattern: 'Brick',
-    title: 'Brick Water Feature',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_05_copy_kewkyh.png`,
-    specs: {
-      height: '96"',
-      width: '144"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 75,
-      enhancement: 'Water Feature'
-    },
-    shopDrawing: null,
-    description: `Brick water feature — carved channels create dozens of small waterfalls.`
-  },
-  {
-    id: 'brick-water-2',
-    pattern: 'Brick',
-    title: 'Brick Poolside',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_18_copy_oce67r.png`,
-    specs: {
-      height: '120"',
-      width: '180"',
-      slabs: 4,
-      material: 'DuPont Corian®',
-      color: 'Deep Nocturne',
-      leadTime: '6 Weeks',
-      pricePerSF: 80
-    },
-    shopDrawing: null,
-    description: `Brick water feature at poolside — black Corian.`
-  },
-  {
-    id: 'brick-water-3',
-    pattern: 'Brick',
-    title: 'Brick Backlit Water',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_20_copy_ffh4px.png`,
-    specs: {
-      height: '96"',
-      width: '144"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 100,
-      enhancement: 'Backlit Water Feature'
-    },
-    shopDrawing: null,
-    description: `Brick water feature with backlighting.`
-  },
-  {
-    id: 'brick-water-4',
-    pattern: 'Brick',
-    title: 'Brick Night',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_27_copy_nxcqhx.png`,
-    specs: {
-      height: '96"',
-      width: '144"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 75
-    },
-    shopDrawing: null,
-    description: `Brick water feature at night.`
-  },
-  {
-    id: 'brick-water-5',
-    pattern: 'Brick',
-    title: 'Brick Daylight',
-    sector: 'Residential',
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_12_copy_gdmjok.png`,
-    specs: {
-      height: '96"',
-      width: '144"',
-      slabs: 3,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 75
-    },
-    shopDrawing: null,
-    description: `Brick water feature in daylight.`
-  },
-
-  // BUDDHA MANDALA
-  {
-    id: 'buddha-1',
-    pattern: 'Buddha Mandala',
-    title: 'Buddha Spa',
-    sector: 'Wellness',
-    image: `${CLOUDINARY_BASE}/spa-_Buddha_2_zid08z.png`,
-    specs: {
-      height: '96"',
-      width: '96"',
-      slabs: 2,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 85,
-      enhancement: 'Backlighting'
-    },
-    shopDrawing: null,
-    description: `Buddha mandala with warm golden backlighting — spiritual focal point. MATCHES: buddha, zen, meditation, peaceful, calm, spa, wellness, spiritual, asian, mandala, yoga, sanctuary.`
-  },
-  {
-    id: 'buddha-2',
-    pattern: 'Buddha Mandala',
-    title: 'Buddha Restaurant',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Spa_Buddha_restaurant_yybtdi.png`,
-    specs: {
-      height: '96"',
-      width: '96"',
-      slabs: 2,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '6 Weeks',
-      pricePerSF: 85
-    },
-    shopDrawing: null,
-    description: `Buddha mandala in restaurant setting.`
-  },
-
-  // MARILYN
-  {
-    id: 'marilyn-1',
-    pattern: 'Custom Portrait',
-    title: 'Marilyn Portrait',
-    sector: 'Entertainment',
-    image: `${CLOUDINARY_BASE}/Marilyn_1_copy_eka0g1.png`,
-    specs: {
-      height: '96"',
-      width: '72"',
-      slabs: 2,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '8 Weeks',
-      pricePerSF: 150
-    },
-    shopDrawing: null,
-    description: `Marilyn Monroe portrait carved into Corian — demonstrates custom portrait capability.`
-  },
-
-  // SAND DUNE
-  {
-    id: 'sanddune-curved-black',
-    pattern: 'Sand Dune',
-    title: 'Sand Dune Curved',
-    sector: 'Hospitality',
-    image: `${CLOUDINARY_BASE}/Fins_Sandune_texture_Curved_black_m1vtil.png`,
-    specs: {
-      height: '120"',
-      width: '60"',
-      slabs: 2,
-      material: 'DuPont Corian®',
-      color: 'Deep Nocturne',
-      leadTime: '8 Weeks',
-      pricePerSF: 90,
-      enhancement: 'Thermoformed'
-    },
-    shopDrawing: null,
-    description: `Sand Dune wrapped around curved column in black — thermoformed cylinder. Good for: resort entry columns, curved walls, dramatic arrivals. MATCHES: curved, column, thermoform, black, dramatic, sculptural.`
-  },
-
-  // DESERT SUNSET - WITH FULL SPECS AND SHOP DRAWING
-  {
-    id: 'desert-sunset-1',
-    pattern: 'Desert Sunset',
-    title: 'Desert Sunset Cactus',
-    sector: 'Hospitality',
-    image: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111216/mr-render-1767989995638_copy_vtszj0.png',
-    specs: {
-      height: "12'",
-      width: "20'",
-      sf: 240,
-      slabs: 5,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '4 Weeks',
-      pricePerSF: 35,
-      enhancement: 'Downlighting'
-    },
-    shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768330379/shop_drawing-Cactus_rovjta.png',
-    description: `Desert Sunset — saguaro cactus silhouettes against carved mountain ridges with warm downlighting. White Corian, coffered ceiling, Scottsdale resort lobby. REGIONAL IDENTITY for Southwest hospitality. MATCHES: southwest, southwestern, arizona, scottsdale, desert, cactus, saguaro, phoenix, tucson, santa fe, sedona, mesa, cacti, sonoran, mojave, palm springs, las vegas, ranch, western, resort, hotel, lobby.`
-  },
-  {
-    id: 'desert-sunset-2',
-    pattern: 'Desert Sunset',
-    title: 'Desert Sunset Variation',
-    sector: 'Hospitality',
-    image: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768111216/mr-render-1767992780170_ufyyef.png',
-    specs: {
-      height: "12'",
-      width: "20'",
-      sf: 240,
-      slabs: 5,
-      material: 'DuPont Corian®',
-      color: 'Glacier White',
-      leadTime: '4 Weeks',
-      pricePerSF: 35
-    },
-    shopDrawing: 'https://res.cloudinary.com/dtlodxxio/image/upload/v1768330379/shop_drawing-Cactus_rovjta.png',
-    description: `Desert Sunset variation — same cactus and mountain pattern, different lighting or context. Southwest regional identity. MATCHES: southwest, arizona, desert, cactus, saguaro, phoenix, scottsdale, resort.`
+// Pattern families - each pattern has multiple color variants
+const PATTERN_FAMILIES = {
+  "Industrial Brick": {
+    description: "Textured brick pattern with carved depth",
+    colors: {
+      "Carbon Concrete": { cloudinaryId: "Carbon_Concrete-industrial_vxloqv", sector: "Aviation", application: "Airport Terminal" },
+      "Dove": { cloudinaryId: "Dove_industrial_w6jvlx", sector: "Aviation", application: "Airport Terminal" },
+      "Neutral Concrete": { cloudinaryId: "Neautral_concrete-industrial_v7gbel", sector: "Aviation", application: "Airport Terminal" },
+      "Artista Mist": { cloudinaryId: "Artista_Mist_Industrial_zfaemp", sector: "Aviation", application: "Airport Terminal" },
+      "Laguna": { cloudinaryId: "Laguna-blue-industrial_ksz6w7", sector: "Aviation", application: "Airport Terminal" },
+      "Verdant": { cloudinaryId: "Verdant_Industrial_bmkodk", sector: "Aviation", application: "Airport Terminal" }
+    }
   }
-];
+};
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MARA SYSTEM PROMPT
-// ═══════════════════════════════════════════════════════════════════════════════
+// Build flat asset list from pattern families
+const buildAssets = () => {
+  const assets = [];
+  Object.entries(PATTERN_FAMILIES).forEach(([pattern, data]) => {
+    Object.entries(data.colors).forEach(([color, colorData]) => {
+      assets.push({
+        id: `${pattern.toLowerCase().replace(/\s+/g, '_')}_${color.toLowerCase().replace(/\s+/g, '_')}`,
+        pattern,
+        corianColor: color,
+        sector: colorData.sector,
+        application: colorData.application,
+        cloudinaryId: colorData.cloudinaryId,
+        url: `${CLOUDINARY_BASE}/${colorData.cloudinaryId}.png`,
+        patternDescription: data.description
+      });
+    });
+  });
+  return assets;
+};
 
-const MARA_SYSTEM_PROMPT = `You are Mara, the MR Walls design assistant. You help architects explore carved Corian wall surfaces.
+const ASSETS = buildAssets();
 
-## PERSONALITY
-Warm, knowledgeable, loves design. Not salesy — helpful and proud of the work.
+// Get all color variants for a pattern
+const getColorVariants = (pattern) => {
+  return ASSETS.filter(a => a.pattern === pattern);
+};
 
-## RESPONSE FORMAT
-1. **BRIEF** — 2-3 sentences max, 40 words
-2. **PICK 1-2 IMAGES** — Read intent, show best matches
-3. **USE [Image: id] TAGS** — Always include image tags
-4. **ONE QUESTION** — End with one follow-up
+// Specs for display
+const SPECS = {
+  maxPanel: '144" × 60"',
+  material: "Corian® Solid Surface",
+  leadTime: "6-10 weeks",
+  system: "InterlockPanel™",
+  price: "$25/SF"
+};
 
-## INTENT REASONING
-- "southwest" or "arizona" or "cactus" → desert-sunset-1
-- "zen" or "meditation" or "peaceful" or "buddha" → buddha-1
-- "japanese" or "onsen" → buddha-1 or sanddune-curved-black
-- "dramatic" or "bold" or "black" → billow-black
-- "water feature" or "pool" or "fountain" → brick-water-1
-- "healthcare" or "hospital" → seattle-1
-- "spa" or "wellness" → buddha-1
-
-## AVAILABLE IMAGES
-${IMAGE_CATALOG.map(img => `- ${img.id}: ${img.pattern} - ${img.description.slice(0, 80)}...`).join('\n')}
-
-Example response:
-"For Southwest hospitality, Desert Sunset is perfect — saguaro cactus silhouettes against warm sunset backlighting.
-
-[Image: desert-sunset-1]
-
-Is this for a lobby statement wall or throughout guest areas?"`;
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export default function MaraV11() {
-  const [messages, setMessages] = useState([]);
+export default function MaraCorian() {
+  const [msgs, setMsgs] = useState([{
+    role: 'a',
+    text: "Hey! I'm Mara from MR Walls. I'm excited to show you our carved Corian surfaces — available in a range of beautiful colors.",
+    results: [ASSETS.find(a => a.corianColor === "Carbon Concrete"), ASSETS.find(a => a.corianColor === "Laguna")].filter(Boolean)
+  }]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
-  const [showMaraPanel, setShowMaraPanel] = useState(false);
-  const [showMara, setShowMara] = useState(false);
-  const messagesEndRef = useRef(null);
-  const inputRef = useRef(null);
+  const [activeColor, setActiveColor] = useState(null);
+  const ref = useRef(null);
 
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  useEffect(() => { ref.current?.scrollIntoView({ behavior: 'smooth' }); }, [msgs]);
 
-  useEffect(() => {
-    if (!loading) inputRef.current?.focus();
-  }, [loading]);
-
-  // Extract image IDs from response
-  const extractImageIds = (text) => {
-    const matches = text.match(/\[Image:\s*([^\]]+)\]/gi) || [];
-    return matches.map(m => {
-      const match = m.match(/\[Image:\s*([^\]]+)\]/i);
-      return match ? match[1].trim() : null;
-    }).filter(Boolean);
+  // Handle image click - open family modal
+  const handleImageClick = (asset) => {
+    setSelectedImage(asset);
+    setActiveColor(asset.corianColor);
   };
 
-  // Find image by ID
-  const findImage = (id) => {
-    if (!id) return null;
-    return IMAGE_CATALOG.find(img => 
-      img.id.toLowerCase() === id.toLowerCase() ||
-      img.id.toLowerCase().includes(id.toLowerCase()) ||
-      id.toLowerCase().includes(img.id.toLowerCase())
-    );
+  // Close modal
+  const closeModal = () => {
+    setSelectedImage(null);
+    setActiveColor(null);
   };
 
-  // Clean response text
-  const cleanResponse = (text) => {
-    return text.replace(/\[Image:\s*[^\]]+\]/gi, '').trim();
+  // Get current display image based on active color
+  const getCurrentImage = () => {
+    if (!selectedImage) return null;
+    if (activeColor === selectedImage.corianColor) return selectedImage;
+    const variant = ASSETS.find(a => a.pattern === selectedImage.pattern && a.corianColor === activeColor);
+    return variant || selectedImage;
   };
 
-  // Call Claude API
-  const callClaude = async (userMessage, history) => {
-    const apiMessages = history.map(m => ({
-      role: m.role === 'user' ? 'user' : 'assistant',
-      content: m.text
-    }));
-    apiMessages.push({ role: 'user', content: userMessage });
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 300,
-        system: MARA_SYSTEM_PROMPT,
-        messages: apiMessages
-      })
-    });
-
-    const data = await response.json();
-    if (data.content?.[0]?.text) {
-      return data.content[0].text;
-    }
-    throw new Error(data.error?.message || 'API error');
-  };
-
-  // Simple fallback image selection
-  const getFallbackImages = (query) => {
-    const lower = query.toLowerCase();
+  // Simple response logic
+  const generateResponse = (userMsg) => {
+    const lower = userMsg.toLowerCase();
     
-    if (lower.includes('desert') || lower.includes('southwest') || lower.includes('cactus') || lower.includes('arizona') || lower.includes('scottsdale')) {
-      return IMAGE_CATALOG.filter(i => i.pattern === 'Desert Sunset');
-    }
-    if (lower.includes('buddha') || lower.includes('zen') || lower.includes('meditation') || lower.includes('spiritual')) {
-      return IMAGE_CATALOG.filter(i => i.pattern === 'Buddha Mandala');
-    }
-    if (lower.includes('japanese') || lower.includes('onsen') || lower.includes('ryokan')) {
-      return [findImage('buddha-1'), findImage('sanddune-curved-black')].filter(Boolean);
-    }
-    if (lower.includes('water') || lower.includes('pool') || lower.includes('fountain')) {
-      return IMAGE_CATALOG.filter(i => i.pattern === 'Brick');
-    }
-    if (lower.includes('healthcare') || lower.includes('hospital') || lower.includes('clinic')) {
-      return IMAGE_CATALOG.filter(i => i.pattern === 'Seattle');
-    }
-    if (lower.includes('dramatic') || lower.includes('bold') || lower.includes('black') || lower.includes('corporate')) {
-      return [findImage('billow-black'), findImage('greatwave-4')].filter(Boolean);
-    }
-    if (lower.includes('spa') || lower.includes('wellness') || lower.includes('calm')) {
-      return [findImage('buddha-1'), findImage('billow-render')].filter(Boolean);
+    if (lower.includes('color') || lower.includes('grey') || lower.includes('gray') || lower.includes('blue') || lower.includes('green')) {
+      return {
+        text: "We have a range of Corian colors — from warm greys to bold blues. Tap any image to see all color options.",
+        results: [
+          ASSETS.find(a => a.corianColor === "Dove"),
+          ASSETS.find(a => a.corianColor === "Laguna"),
+          ASSETS.find(a => a.corianColor === "Carbon Concrete"),
+          ASSETS.find(a => a.corianColor === "Verdant")
+        ].filter(Boolean)
+      };
     }
     
-    return [IMAGE_CATALOG[0], IMAGE_CATALOG[6]];
+    if (lower.includes('price') || lower.includes('cost') || lower.includes('pricing')) {
+      return {
+        text: `Industrial Brick starts at ${SPECS.price}. That includes precision CNC carving and our InterlockPanel™ system — panels arrive ready to install.`,
+        results: []
+      };
+    }
+
+    if (lower.includes('spec') || lower.includes('technical') || lower.includes('detail')) {
+      return {
+        text: `Quick specs: Max panel ${SPECS.maxPanel}, ${SPECS.material}, ${SPECS.leadTime} lead time. Want me to send the full spec package?`,
+        results: []
+      };
+    }
+
+    if (lower.includes('dark') || lower.includes('dramatic') || lower.includes('bold')) {
+      return {
+        text: "For drama, Carbon Concrete or Laguna make a statement. The deep tones really show off the carved texture.",
+        results: [
+          ASSETS.find(a => a.corianColor === "Carbon Concrete"),
+          ASSETS.find(a => a.corianColor === "Laguna")
+        ].filter(Boolean)
+      };
+    }
+
+    if (lower.includes('light') || lower.includes('neutral') || lower.includes('soft')) {
+      return {
+        text: "For softer looks, Dove and Neutral Concrete are beautiful — warm without being stark white.",
+        results: [
+          ASSETS.find(a => a.corianColor === "Dove"),
+          ASSETS.find(a => a.corianColor === "Neutral Concrete")
+        ].filter(Boolean)
+      };
+    }
+
+    // Default
+    return {
+      text: "Here's Industrial Brick in different Corian colors. Tap any to explore the full range.",
+      results: ASSETS.slice(0, 4)
+    };
   };
 
-  // Calculate SF and total price
-  const calculatePrice = (specs) => {
-    const heightInches = parseFloat(specs.height);
-    const widthInches = parseFloat(specs.width);
-    const sf = (heightInches * widthInches) / 144;
-    const total = sf * specs.pricePerSF;
-    return { sf: sf.toFixed(0), total: total.toFixed(0) };
-  };
-
-  // Send message
-  const sendMessage = async () => {
-    if (!input.trim() || loading) return;
-
-    const userMessage = input.trim();
+  const send = async (t) => {
+    if (!t?.trim() || loading) return;
     setInput('');
-    
-    const newMessages = [...messages, { role: 'user', text: userMessage }];
-    setMessages(newMessages);
+    setMsgs(m => [...m, { role: 'u', text: t }]);
     setLoading(true);
 
-    try {
-      const response = await callClaude(userMessage, messages);
-      const imageIds = extractImageIds(response);
-      const images = imageIds.map(id => findImage(id)).filter(Boolean);
-      const cleanText = cleanResponse(response);
+    await new Promise(r => setTimeout(r, 500 + Math.random() * 500));
 
-      const finalImages = images.length > 0 ? images : getFallbackImages(userMessage);
-
-      setMessages([...newMessages, {
-        role: 'assistant',
-        text: cleanText,
-        images: finalImages.slice(0, 2)
-      }]);
-    } catch (error) {
-      console.error('Error:', error);
-      const fallbackImages = getFallbackImages(userMessage);
-      setMessages([...newMessages, {
-        role: 'assistant',
-        text: "Here's what I'd recommend — tell me more about your project.",
-        images: fallbackImages.slice(0, 2)
-      }]);
-    } finally {
-      setLoading(false);
-    }
+    const response = generateResponse(t);
+    setMsgs(m => [...m, { role: 'a', ...response }]);
+    setLoading(false);
   };
 
-  // Handle custom size request
-  const handleCustomSize = () => {
-    const subject = encodeURIComponent(`Custom Size Request: ${selectedImage.title}`);
-    const body = encodeURIComponent(`Hi,\n\nI'm interested in the ${selectedImage.title} (${selectedImage.pattern}) in a custom size.\n\nMy required dimensions:\nHeight: \nWidth: \n\nProject details:\n\n`);
-    window.location.href = `mailto:Orders@marioromano.com?subject=${subject}&body=${body}`;
-  };
-
-  // Handle buy now
-  const handleBuyNow = () => {
-    // Placeholder - will integrate Stripe
-    alert('Buy Now coming soon! For now, please email Orders@marioromano.com');
-  };
-
-  // Handle spec download
-  const handleSpecDownload = () => {
-    if (selectedImage.shopDrawing) {
-      window.open(selectedImage.shopDrawing, '_blank');
-    } else {
-      alert('Shop drawing coming soon for this pattern. Email Orders@marioromano.com for specs.');
-    }
-  };
-
-  // Initial greeting
-  useEffect(() => {
-    setMessages([{
-      role: 'assistant',
-      text: "Hey! I'm Mara from MR Walls. I help architects explore carved wall surfaces. What kind of space are you working on?",
-      images: [IMAGE_CATALOG[0], IMAGE_CATALOG[6]]
-    }]);
-  }, []);
+  const currentImage = getCurrentImage();
+  const colorVariants = selectedImage ? getColorVariants(selectedImage.pattern) : [];
 
   return (
-    <div className="h-screen bg-stone-950 text-stone-100 flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
-      
+    <div className="h-screen bg-stone-950 text-stone-100 flex flex-col">
       {/* Header */}
-      <header className="flex-shrink-0 border-b border-stone-800 bg-stone-950/90 backdrop-blur-sm px-4 py-3 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-stone-700 to-stone-800 flex items-center justify-center">
-          <span className="text-sm font-bold text-stone-300">M|R</span>
-        </div>
+      <div className="p-4 border-b border-stone-800 flex items-center gap-3">
+        <div className="w-10 h-10 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center text-sm font-medium">M</div>
         <div>
-          <h1 className="text-base font-semibold text-stone-100">Mara</h1>
-          <p className="text-xs text-stone-500">MR Walls Design Assistant</p>
+          <div className="font-medium">Mara</div>
+          <div className="text-xs text-stone-500">MR Walls × Corian® Design</div>
         </div>
-      </header>
+      </div>
 
-      {/* Messages */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-2xl">
-              <div className={`rounded-2xl px-4 py-3 ${
-                msg.role === 'user'
-                  ? 'bg-stone-700 text-stone-100'
-                  : 'bg-stone-900 border border-stone-800'
-              }`}>
-                <p className="text-sm leading-relaxed">{msg.text}</p>
+      {/* Chat */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+        {msgs.map((m, i) => (
+          <div key={i} className={m.role === 'u' ? 'flex justify-end' : 'flex justify-start'}>
+            <div className="max-w-[90%]">
+              <div className={`rounded-2xl px-4 py-3 ${m.role === 'u' ? 'bg-stone-700' : 'bg-stone-900 border border-stone-800'}`}>
+                <div className="text-sm leading-relaxed">{m.text}</div>
               </div>
-
-              {msg.images && msg.images.length > 0 && (
+              
+              {/* 2x larger images */}
+              {m.results && m.results.length > 0 && (
                 <div className="mt-3 grid grid-cols-2 gap-3">
-                  {msg.images.map((img, j) => (
-                    <div
+                  {m.results.map((r, j) => (
+                    <button
                       key={j}
-                      onClick={() => setSelectedImage(img)}
-                      className="cursor-pointer rounded-xl overflow-hidden border border-stone-800 hover:border-stone-600 transition-all hover:scale-[1.02] bg-stone-900"
+                      onClick={() => handleImageClick(r)}
+                      className="block bg-stone-900 rounded-xl border border-stone-800 overflow-hidden hover:border-stone-600 hover:scale-[1.02] transition-all text-left"
                     >
-                      <div className="aspect-square bg-stone-800 relative">
-                        <img
-                          src={img.image}
-                          alt={img.title}
+                      <div className="aspect-[4/3] relative">
+                        <img 
+                          src={r.url} 
+                          alt={`${r.pattern} in ${r.corianColor}`}
                           className="w-full h-full object-cover"
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.parentElement.innerHTML = '<div class="w-full h-full flex items-center justify-center text-stone-600 text-4xl">◇</div>';
-                          }}
                         />
                       </div>
                       <div className="p-3">
-                        <h3 className="text-sm font-medium text-stone-100 truncate">{img.title}</h3>
-                        <p className="text-xs text-stone-500">{img.sector} • {img.pattern}</p>
+                        <div className="text-sm font-medium">{r.pattern}</div>
+                        <div className="text-xs text-stone-400 mt-0.5">{r.corianColor}</div>
+                        <div className="flex items-center gap-2 mt-2">
+                          <div 
+                            className="w-3 h-3 rounded-full border border-stone-600"
+                            style={{ backgroundColor: CORIAN_COLORS[r.corianColor]?.hex }}
+                          />
+                          <span className="text-[10px] text-stone-500">{r.sector}</span>
+                        </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               )}
             </div>
           </div>
         ))}
-
+        
         {loading && (
           <div className="flex justify-start">
             <div className="bg-stone-900 border border-stone-800 rounded-2xl px-4 py-3">
-              <div className="flex gap-1">
+              <div className="flex gap-1.5">
                 <span className="w-2 h-2 bg-stone-600 rounded-full animate-bounce" />
                 <span className="w-2 h-2 bg-stone-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
                 <span className="w-2 h-2 bg-stone-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
@@ -715,219 +237,149 @@ export default function MaraV11() {
             </div>
           </div>
         )}
-
-        <div ref={messagesEndRef} />
-      </main>
+        <div ref={ref} />
+      </div>
 
       {/* Input */}
-      <footer className="flex-shrink-0 border-t border-stone-800 bg-stone-950 p-4">
-        <div className="max-w-2xl mx-auto flex gap-3">
-          <input
-            ref={inputRef}
-            type="text"
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && sendMessage()}
-            placeholder="Describe your space, mood, or sector..."
-            disabled={loading}
-            className="flex-1 px-4 py-3 bg-stone-900 border border-stone-700 rounded-xl text-sm text-stone-100 placeholder-stone-500 focus:outline-none focus:border-stone-500 disabled:opacity-50"
-          />
-          <button
-            onClick={sendMessage}
-            disabled={loading || !input.trim()}
-            className="px-5 py-3 bg-stone-100 text-stone-900 rounded-xl font-medium text-sm hover:bg-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            Send
-          </button>
-        </div>
-      </footer>
-
-      {/* ═══════════════════════════════════════════════════════════════════════
-          SPEC-TO-BUY MODAL
-          ═══════════════════════════════════════════════════════════════════════ */}
-      {selectedImage && (
-        <div 
-          className="fixed inset-0 bg-black/95 z-50 flex items-center justify-center p-4 overflow-y-auto"
-          onClick={() => { setSelectedImage(null); setShowMaraPanel(false); }}
+      <div className="p-4 border-t border-stone-800 flex gap-3">
+        <input
+          value={input}
+          onChange={e => setInput(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && send(input)}
+          placeholder="Ask about colors, pricing, specs..."
+          disabled={loading}
+          className="flex-1 px-4 py-3 bg-stone-900 border border-stone-700 rounded-xl text-sm focus:outline-none focus:border-stone-500 disabled:opacity-50"
+        />
+        <button 
+          onClick={() => send(input)} 
+          disabled={loading || !input.trim()} 
+          className="px-5 py-3 bg-stone-100 text-stone-900 rounded-xl font-medium disabled:opacity-50"
         >
+          Send
+        </button>
+      </div>
+
+      {/* Family Modal */}
+      {selectedImage && currentImage && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={closeModal}>
           <div 
-            className={`bg-stone-900 rounded-2xl my-4 relative overflow-hidden transition-all duration-300 w-full ${showMaraPanel ? 'max-w-3xl' : 'max-w-md'}`}
-            onClick={(e) => e.stopPropagation()}
+            className="bg-stone-950 rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden border border-stone-800 flex flex-col"
+            onClick={e => e.stopPropagation()}
           >
-            {/* Image */}
-            <div className="relative">
-              <div className="aspect-[4/3] bg-stone-800 rounded-t-2xl overflow-hidden">
-                <img
-                  src={selectedImage.image}
-                  alt={selectedImage.title}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <button
-                onClick={() => { setSelectedImage(null); setShowMaraPanel(false); }}
-                className="absolute top-3 right-3 w-8 h-8 bg-black/60 rounded-full flex items-center justify-center text-white hover:bg-black/80 transition-colors"
+            {/* Hero Image */}
+            <div className="relative aspect-[16/9] bg-stone-900">
+              <img 
+                src={currentImage.url}
+                alt={`${currentImage.pattern} in ${currentImage.corianColor}`}
+                className="w-full h-full object-cover"
+              />
+              <button 
+                onClick={closeModal}
+                className="absolute top-4 right-4 w-10 h-10 bg-black/50 hover:bg-black/70 rounded-full flex items-center justify-center text-white"
               >
                 ✕
               </button>
+              <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2">
+                <div className="text-lg font-medium">{currentImage.pattern}</div>
+                <div className="text-sm text-stone-300">{currentImage.corianColor}</div>
+              </div>
             </div>
 
-            {/* Details */}
-            <div className="p-5">
-              {/* Title & Pattern */}
-              <h2 className="text-xl font-semibold text-stone-100">{selectedImage.title}</h2>
-              <p className="text-stone-400 text-sm">{selectedImage.pattern} • {selectedImage.sector}</p>
-              
-              {/* Slab count */}
-              <p className="text-stone-500 text-sm mt-2">
-                arrives in {selectedImage.specs.slabs} puzzled slabs
-              </p>
-
-              {/* Specs Grid */}
-              <div className="grid grid-cols-2 gap-3 mt-4">
-                {/* Dimensions */}
-                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
-                  <p className="text-lg font-medium text-stone-100">
-                    {selectedImage.specs.height} high
-                  </p>
-                  <p className="text-lg font-medium text-stone-100">
-                    x {selectedImage.specs.width} wide
-                  </p>
-                  {selectedImage.specs.sf && (
-                    <p className="text-sm text-stone-400 mt-1">
-                      {selectedImage.specs.sf} SF
-                    </p>
-                  )}
-                </div>
-                
-                {/* Material */}
-                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Material</p>
-                  <p className="text-sm font-medium text-stone-100 mt-1">{selectedImage.specs.material}</p>
-                  <p className="text-sm text-stone-400">{selectedImage.specs.color}</p>
-                </div>
-                
-                {/* Lead Time */}
-                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Lead Time</p>
-                  <p className="text-lg font-medium text-stone-100 mt-1">{selectedImage.specs.leadTime}</p>
-                </div>
-                
-                {/* Price - Total prominent, per SF small */}
-                <div className="bg-stone-800 rounded-xl p-3 border border-stone-700">
-                  <p className="text-xs text-stone-500 uppercase tracking-wide">Price</p>
-                  <p className="text-lg font-medium text-emerald-400 mt-1">
-                    ${(selectedImage.specs.sf ? selectedImage.specs.sf * selectedImage.specs.pricePerSF : 0).toLocaleString()}
-                  </p>
-                  <p className="text-xs text-stone-500 mt-1">
-                    approx ${selectedImage.specs.pricePerSF} per SF
-                  </p>
-                </div>
-              </div>
-
-              {/* Enhancement badge if applicable */}
-              {selectedImage.specs.enhancement && (
-                <div className="mt-3">
-                  <span className="inline-block px-3 py-1 bg-amber-900/50 text-amber-200 text-xs rounded-full">
-                    {selectedImage.specs.enhancement}
-                  </span>
-                </div>
-              )}
-
-              {/* Action Buttons */}
-              <div className="grid grid-cols-2 gap-3 mt-5">
-                <button 
-                  onClick={handleSpecDownload}
-                  className="py-3 bg-stone-800 border border-stone-600 text-stone-100 rounded-xl font-medium text-sm hover:bg-stone-700 transition-colors flex items-center justify-center gap-2"
-                >
-                  📐 Spec in Plans
-                </button>
-                <button 
-                  onClick={handleBuyNow}
-                  className="py-3 bg-white text-stone-900 rounded-xl font-medium text-sm hover:bg-stone-100 transition-colors flex items-center justify-center gap-2"
-                >
-                  💳 Buy Now
-                </button>
-              </div>
-
-              {/* Custom Size */}
-              <button 
-                onClick={handleCustomSize}
-                className="mt-3 w-full py-3 border border-stone-700 text-stone-400 rounded-xl font-medium text-sm hover:bg-stone-800 hover:text-stone-200 transition-colors"
-              >
-                Request custom size
-              </button>
-
-              {/* Mara Help */}
-              <button 
-                onClick={() => setShowMaraPanel(true)}
-                className="mt-3 w-full py-2 text-stone-500 text-sm hover:text-stone-300 transition-colors flex items-center justify-center gap-2"
-              >
-                💬 Questions? Ask Mara
-              </button>
-            </div>
-
-            {/* Mara Chat Panel - slides in from right */}
-            {showMaraPanel && (
-              <div className="absolute inset-y-0 right-0 w-80 bg-stone-950 border-l border-stone-700 flex flex-col rounded-r-2xl">
-                {/* Panel Header */}
-                <div className="flex items-center justify-between p-4 border-b border-stone-800">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-stone-700 to-stone-800 flex items-center justify-center">
-                      <span className="text-xs font-bold text-stone-300">M</span>
-                    </div>
-                    <span className="text-sm font-medium text-stone-200">Mara</span>
-                  </div>
-                  <button 
-                    onClick={() => setShowMaraPanel(false)}
-                    className="text-stone-500 hover:text-stone-300 text-lg"
+            {/* Color Swatches */}
+            <div className="p-4 border-b border-stone-800">
+              <div className="text-xs text-stone-500 mb-3">CORIAN® COLORS</div>
+              <div className="flex gap-2">
+                {colorVariants.map((variant, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setActiveColor(variant.corianColor)}
+                    className={`flex flex-col items-center gap-1.5 p-2 rounded-lg transition-all ${
+                      activeColor === variant.corianColor 
+                        ? 'bg-stone-800 ring-2 ring-stone-500' 
+                        : 'hover:bg-stone-900'
+                    }`}
                   >
-                    ✕
+                    <div 
+                      className="w-8 h-8 rounded-full border-2 border-stone-600"
+                      style={{ backgroundColor: CORIAN_COLORS[variant.corianColor]?.hex }}
+                    />
+                    <span className="text-[10px] text-stone-400 whitespace-nowrap">{variant.corianColor}</span>
                   </button>
-                </div>
-                
-                {/* Mara Message */}
-                <div className="flex-1 p-4 overflow-y-auto">
-                  <div className="bg-stone-900 border border-stone-800 rounded-xl p-3">
-                    <p className="text-sm text-stone-300 leading-relaxed">
-                      Any questions about <span className="text-stone-100 font-medium">{selectedImage.title}</span>? 
-                    </p>
-                    <p className="text-sm text-stone-400 mt-2 leading-relaxed">
-                      I can help you with install questions, technical information, or if you need a 3D model or clean swatch for your plans.
-                    </p>
+                ))}
+              </div>
+            </div>
+
+            {/* Mara Panel + Specs */}
+            <div className="flex-1 overflow-y-auto">
+              <div className="p-4 flex gap-4">
+                {/* Mara guidance */}
+                <div className="flex-1">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center text-xs font-medium shrink-0">M</div>
+                    <div className="bg-stone-900 border border-stone-800 rounded-xl p-3">
+                      <p className="text-sm text-stone-300">
+                        {activeColor === "Laguna" && "Laguna is bold — makes a real statement. Great for branding moments."}
+                        {activeColor === "Carbon Concrete" && "Carbon Concrete has that industrial edge. The texture really pops against the dark background."}
+                        {activeColor === "Dove" && "Dove is versatile — warm enough to feel inviting, neutral enough to work anywhere."}
+                        {activeColor === "Neutral Concrete" && "Neutral Concrete reads as honest material. Architects love it."}
+                        {activeColor === "Artista Mist" && "Artista Mist has subtle movement — more interesting than flat grey."}
+                        {activeColor === "Verdant" && "Verdant brings nature in. The deep teal is surprisingly calming."}
+                      </p>
+                      <p className="text-sm text-stone-400 mt-2">See one you like? I can send specs or show you different patterns.</p>
+                    </div>
                   </div>
                   
-                  {/* Quick question buttons */}
-                  <div className="mt-4 space-y-2">
-                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
-                      How does installation work?
+                  {/* Action buttons */}
+                  <div className="mt-3 flex gap-2 ml-11">
+                    <button className="px-4 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg text-sm border border-stone-700">
+                      Download Specs
                     </button>
-                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
-                      Can I get a 3D model?
-                    </button>
-                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
-                      Do you have material samples?
-                    </button>
-                    <button className="w-full text-left text-xs px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-stone-400 hover:text-stone-200 hover:border-stone-600 transition-colors">
-                      What's the lead time?
+                    <button className="px-4 py-2 bg-stone-100 text-stone-900 hover:bg-white rounded-lg text-sm font-medium">
+                      Request Quote
                     </button>
                   </div>
                 </div>
-                
-                {/* Input */}
-                <div className="p-3 border-t border-stone-800">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="Ask a question..."
-                      className="flex-1 px-3 py-2 bg-stone-900 border border-stone-700 rounded-lg text-xs text-stone-100 placeholder-stone-500 focus:outline-none focus:border-stone-500"
-                    />
-                    <button className="px-3 py-2 bg-stone-100 text-stone-900 rounded-lg text-xs font-medium hover:bg-white transition-colors">
-                      Send
-                    </button>
+
+                {/* Specs panel */}
+                <div className="w-64 shrink-0">
+                  <div className="bg-stone-900 border border-stone-800 rounded-xl p-4">
+                    <div className="text-xs text-stone-500 mb-3">SPECIFICATIONS</div>
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">Pattern</span>
+                        <span className="text-stone-200">{currentImage.pattern}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">Color</span>
+                        <span className="text-stone-200">{currentImage.corianColor}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">Material</span>
+                        <span className="text-stone-200">Corian®</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">Max Panel</span>
+                        <span className="text-stone-200">{SPECS.maxPanel}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">Lead Time</span>
+                        <span className="text-stone-200">{SPECS.leadTime}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-stone-500">System</span>
+                        <span className="text-stone-200">{SPECS.system}</span>
+                      </div>
+                      <div className="border-t border-stone-700 pt-2 mt-2">
+                        <div className="flex justify-between">
+                          <span className="text-stone-500">Starting</span>
+                          <span className="text-lg font-medium text-stone-100">{SPECS.price}</span>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
-            )}
+            </div>
           </div>
         </div>
       )}
