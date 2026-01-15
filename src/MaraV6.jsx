@@ -4,6 +4,12 @@ import { useState, useRef, useEffect } from 'react';
 // MARA V13 - Smart Family Grouping + Accurate Labels + Strict Backlight
 // ═══════════════════════════════════════════════════════════════════════════════
 
+const CLOUDINARY_BASE = 'httpimport { useState, useRef, useEffect } from 'react';
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// MARA V13 - Smart Family Grouping + Modal Chat Input
+// ═══════════════════════════════════════════════════════════════════════════════
+
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload';
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -157,7 +163,7 @@ const IMAGE_CATALOG = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // BILLOW (renamed accurately)
+  // BILLOW
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'billow-render',
@@ -310,7 +316,7 @@ const IMAGE_CATALOG = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // BRICK WATER FEATURE (renamed - only brick-water-3 is actually backlit)
+  // BRICK WATER FEATURE
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'brick-water-1',
@@ -914,6 +920,7 @@ export default function MaraV13() {
     }
   ]);
   const [input, setInput] = useState('');
+  const [modalInput, setModalInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [familyImages, setFamilyImages] = useState([]);
@@ -931,6 +938,7 @@ export default function MaraV13() {
     setSelectedImage(img);
     setFamilyImages(family);
     setSpecsImage(null);
+    setModalInput(''); // Clear modal input when opening
   };
 
   // Handle family image click → show specs
@@ -943,6 +951,7 @@ export default function MaraV13() {
     setSelectedImage(null);
     setFamilyImages([]);
     setSpecsImage(null);
+    setModalInput('');
   };
 
   const closeSpecs = () => {
@@ -983,12 +992,18 @@ export default function MaraV13() {
   // ─────────────────────────────────────────────────────────────────────────────
   // SEND MESSAGE
   // ─────────────────────────────────────────────────────────────────────────────
-  const send = async (text) => {
+  const send = async (text, contextImage = null) => {
     if (!text?.trim() || loading) return;
     
-    const userMsg = text.trim();
+    // If there's a context image, prepend it to the message
+    let userMsg = text.trim();
+    if (contextImage) {
+      userMsg = `[Looking at: ${contextImage.title} - ${contextImage.pattern}] ${userMsg}`;
+    }
+    
     setInput('');
-    setMessages(m => [...m, { role: 'user', text: userMsg }]);
+    setModalInput('');
+    setMessages(m => [...m, { role: 'user', text: text.trim() }]);
     setLoading(true);
 
     const claudeResponse = await callClaude(userMsg, history);
@@ -1008,7 +1023,7 @@ export default function MaraV13() {
     
     // Fallback to search if no Claude response or no images
     if (!claudeResponse || responseImages.length === 0) {
-      responseImages = searchImages(userMsg);
+      responseImages = searchImages(text.trim());
       
       if (responseImages.length > 0) {
         responseText = responseText || `Here's what I found:`;
@@ -1028,6 +1043,16 @@ export default function MaraV13() {
     }]);
     
     setLoading(false);
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────────
+  // SEND FROM MODAL (with context)
+  // ─────────────────────────────────────────────────────────────────────────────
+  const sendFromModal = () => {
+    if (!modalInput.trim() || loading) return;
+    const contextImage = selectedImage;
+    closeModal();
+    send(modalInput, contextImage);
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
@@ -1125,18 +1150,20 @@ export default function MaraV13() {
         </div>
       </footer>
 
-      {/* FAMILY MODAL - Click image → see 4 related + Mara */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          FAMILY MODAL - Click image → see 4 related + Mara + CHAT INPUT
+          ═══════════════════════════════════════════════════════════════════════ */}
       {selectedImage && !specsImage && (
         <div 
           className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
           onClick={closeModal}
         >
           <div 
-            className="bg-stone-950 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-stone-800"
+            className="bg-stone-950 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-stone-800 flex flex-col"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Selected Image Header */}
-            <div className="aspect-[16/9] relative bg-stone-900">
+            <div className="aspect-[16/9] relative bg-stone-900 shrink-0">
               <img 
                 src={selectedImage.image} 
                 alt={selectedImage.title}
@@ -1154,8 +1181,8 @@ export default function MaraV13() {
               </div>
             </div>
 
-            {/* Mara + Family Images */}
-            <div className="p-4">
+            {/* Scrollable content */}
+            <div className="p-4 overflow-y-auto flex-1">
               {/* Mara guidance */}
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center text-xs font-medium shrink-0">M</div>
@@ -1203,11 +1230,40 @@ export default function MaraV13() {
                 View Full Specs for {selectedImage.title}
               </button>
             </div>
+
+            {/* ─────────────────────────────────────────────────────────────────
+                MODAL CHAT INPUT - Ask questions while viewing project
+                ───────────────────────────────────────────────────────────────── */}
+            <div className="p-4 border-t border-stone-800 shrink-0">
+              <div className="flex gap-3">
+                <input
+                  value={modalInput}
+                  onChange={(e) => setModalInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && modalInput.trim()) {
+                      sendFromModal();
+                    }
+                  }}
+                  placeholder={`Ask about ${selectedImage.pattern}...`}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 bg-stone-900 border border-stone-700 rounded-xl text-sm focus:outline-none focus:border-stone-500 disabled:opacity-50"
+                />
+                <button
+                  onClick={sendFromModal}
+                  disabled={loading || !modalInput.trim()}
+                  className="px-5 py-3 bg-stone-100 text-stone-900 rounded-xl font-medium text-sm hover:bg-white disabled:opacity-50 transition-colors"
+                >
+                  Ask
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       )}
 
-      {/* SPECS MODAL - Click family image → see specs */}
+      {/* ═══════════════════════════════════════════════════════════════════════
+          SPECS MODAL - Click family image → see specs
+          ═══════════════════════════════════════════════════════════════════════ */}
       {specsImage && (
         <div 
           className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
@@ -1309,3 +1365,4 @@ export default function MaraV13() {
     </div>
   );
 }
+
