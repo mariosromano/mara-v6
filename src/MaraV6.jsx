@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 // ═══════════════════════════════════════════════════════════════════════════════
-// MARA V13 - Smart Family Grouping + Modal Chat Input
+// MARA V13 - Smart Family Grouping + Accurate Labels + Strict Backlight
 // ═══════════════════════════════════════════════════════════════════════════════
 
 const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload';
@@ -157,7 +157,7 @@ const IMAGE_CATALOG = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // BILLOW
+  // BILLOW (renamed accurately)
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'billow-render',
@@ -310,7 +310,7 @@ const IMAGE_CATALOG = [
   },
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // BRICK WATER FEATURE
+  // BRICK WATER FEATURE (renamed - only brick-water-3 is actually backlit)
   // ─────────────────────────────────────────────────────────────────────────────
   {
     id: 'brick-water-1',
@@ -914,13 +914,25 @@ export default function MaraV13() {
     }
   ]);
   const [input, setInput] = useState('');
-  const [modalInput, setModalInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [selectedImage, setSelectedImage] = useState(null);
   const [familyImages, setFamilyImages] = useState([]);
   const [specsImage, setSpecsImage] = useState(null);
+  const [showGallery, setShowGallery] = useState(false);
   const [history, setHistory] = useState([]);
   const messagesEndRef = useRef(null);
+
+  // Get unique patterns for gallery organization
+  const getGalleryPatterns = () => {
+    const patterns = {};
+    IMAGE_CATALOG.forEach(img => {
+      if (!patterns[img.pattern]) {
+        patterns[img.pattern] = [];
+      }
+      patterns[img.pattern].push(img);
+    });
+    return patterns;
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -932,7 +944,6 @@ export default function MaraV13() {
     setSelectedImage(img);
     setFamilyImages(family);
     setSpecsImage(null);
-    setModalInput(''); // Clear modal input when opening
   };
 
   // Handle family image click → show specs
@@ -945,7 +956,6 @@ export default function MaraV13() {
     setSelectedImage(null);
     setFamilyImages([]);
     setSpecsImage(null);
-    setModalInput('');
   };
 
   const closeSpecs = () => {
@@ -986,18 +996,24 @@ export default function MaraV13() {
   // ─────────────────────────────────────────────────────────────────────────────
   // SEND MESSAGE
   // ─────────────────────────────────────────────────────────────────────────────
-  const send = async (text, contextImage = null) => {
+  const send = async (text) => {
     if (!text?.trim() || loading) return;
     
-    // If there's a context image, prepend it to the message
-    let userMsg = text.trim();
-    if (contextImage) {
-      userMsg = `[Looking at: ${contextImage.title} - ${contextImage.pattern}] ${userMsg}`;
+    const userMsg = text.trim();
+    const lower = userMsg.toLowerCase();
+    
+    // Check for browse/gallery intent
+    if (lower.includes('everything') || lower.includes('all image') || lower.includes('browse') || lower.includes('scroll') || lower.includes('gallery') || lower.includes('show me all') || lower.includes('see all')) {
+      setMessages(m => [...m, 
+        { role: 'user', text: userMsg },
+        { role: 'assistant', text: "Here's our full collection — organized by pattern. Tap any image to explore.", images: [] }
+      ]);
+      setShowGallery(true);
+      return;
     }
     
     setInput('');
-    setModalInput('');
-    setMessages(m => [...m, { role: 'user', text: text.trim() }]);
+    setMessages(m => [...m, { role: 'user', text: userMsg }]);
     setLoading(true);
 
     const claudeResponse = await callClaude(userMsg, history);
@@ -1017,7 +1033,7 @@ export default function MaraV13() {
     
     // Fallback to search if no Claude response or no images
     if (!claudeResponse || responseImages.length === 0) {
-      responseImages = searchImages(text.trim());
+      responseImages = searchImages(userMsg);
       
       if (responseImages.length > 0) {
         responseText = responseText || `Here's what I found:`;
@@ -1040,30 +1056,31 @@ export default function MaraV13() {
   };
 
   // ─────────────────────────────────────────────────────────────────────────────
-  // SEND FROM MODAL (with context)
-  // ─────────────────────────────────────────────────────────────────────────────
-  const sendFromModal = () => {
-    if (!modalInput.trim() || loading) return;
-    const contextImage = selectedImage;
-    closeModal();
-    send(modalInput, contextImage);
-  };
-
-  // ─────────────────────────────────────────────────────────────────────────────
   // RENDER
   // ─────────────────────────────────────────────────────────────────────────────
   return (
     <div className="h-screen bg-stone-950 text-stone-100 flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       
       {/* Header */}
-      <header className="p-4 border-b border-stone-800 flex items-center gap-3">
-        <div className="w-10 h-10 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center">
-          <span className="text-lg font-semibold text-stone-300">M</span>
+      <header className="p-4 border-b border-stone-800 flex items-center justify-between">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center">
+            <span className="text-lg font-semibold text-stone-300">M</span>
+          </div>
+          <div>
+            <h1 className="font-semibold text-stone-100">Mara</h1>
+            <p className="text-xs text-stone-500">MR Walls × Corian® Design</p>
+          </div>
         </div>
-        <div>
-          <h1 className="font-semibold text-stone-100">Mara</h1>
-          <p className="text-xs text-stone-500">MR Walls × Corian® Design</p>
-        </div>
+        <button
+          onClick={() => setShowGallery(true)}
+          className="flex items-center gap-2 px-3 py-2 bg-stone-900 hover:bg-stone-800 rounded-lg border border-stone-700 text-sm text-stone-300 transition-colors"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          Browse All
+        </button>
       </header>
 
       {/* Messages */}
@@ -1144,20 +1161,18 @@ export default function MaraV13() {
         </div>
       </footer>
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          FAMILY MODAL - Click image → see 4 related + Mara + CHAT INPUT
-          ═══════════════════════════════════════════════════════════════════════ */}
+      {/* FAMILY MODAL - Click image → see 4 related + Mara */}
       {selectedImage && !specsImage && (
         <div 
           className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
           onClick={closeModal}
         >
           <div 
-            className="bg-stone-950 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-stone-800 flex flex-col"
+            className="bg-stone-950 rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-hidden border border-stone-800"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Selected Image Header */}
-            <div className="aspect-[16/9] relative bg-stone-900 shrink-0">
+            <div className="aspect-[16/9] relative bg-stone-900">
               <img 
                 src={selectedImage.image} 
                 alt={selectedImage.title}
@@ -1175,8 +1190,8 @@ export default function MaraV13() {
               </div>
             </div>
 
-            {/* Scrollable content */}
-            <div className="p-4 overflow-y-auto flex-1">
+            {/* Mara + Family Images */}
+            <div className="p-4">
               {/* Mara guidance */}
               <div className="flex items-start gap-3 mb-4">
                 <div className="w-8 h-8 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center text-xs font-medium shrink-0">M</div>
@@ -1224,40 +1239,11 @@ export default function MaraV13() {
                 View Full Specs for {selectedImage.title}
               </button>
             </div>
-
-            {/* ─────────────────────────────────────────────────────────────────
-                MODAL CHAT INPUT - Ask questions while viewing project
-                ───────────────────────────────────────────────────────────────── */}
-            <div className="p-4 border-t border-stone-800 shrink-0">
-              <div className="flex gap-3">
-                <input
-                  value={modalInput}
-                  onChange={(e) => setModalInput(e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && modalInput.trim()) {
-                      sendFromModal();
-                    }
-                  }}
-                  placeholder={`Ask about ${selectedImage.pattern}...`}
-                  disabled={loading}
-                  className="flex-1 px-4 py-3 bg-stone-900 border border-stone-700 rounded-xl text-sm focus:outline-none focus:border-stone-500 disabled:opacity-50"
-                />
-                <button
-                  onClick={sendFromModal}
-                  disabled={loading || !modalInput.trim()}
-                  className="px-5 py-3 bg-stone-100 text-stone-900 rounded-xl font-medium text-sm hover:bg-white disabled:opacity-50 transition-colors"
-                >
-                  Ask
-                </button>
-              </div>
-            </div>
           </div>
         </div>
       )}
 
-      {/* ═══════════════════════════════════════════════════════════════════════
-          SPECS MODAL - Click family image → see specs
-          ═══════════════════════════════════════════════════════════════════════ */}
+      {/* SPECS MODAL - Click family image → see specs */}
       {specsImage && (
         <div 
           className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
@@ -1353,6 +1339,74 @@ export default function MaraV13() {
                 ← Back to related images
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* GALLERY MODAL - Browse all images */}
+      {showGallery && (
+        <div 
+          className="fixed inset-0 bg-black/95 z-50 overflow-y-auto"
+          onClick={() => setShowGallery(false)}
+        >
+          <div 
+            className="max-w-6xl mx-auto p-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Gallery Header */}
+            <div className="flex items-center justify-between mb-6 sticky top-0 bg-black/80 backdrop-blur-sm py-4 -mx-4 px-4">
+              <div>
+                <h2 className="text-xl font-semibold text-stone-100">Full Collection</h2>
+                <p className="text-sm text-stone-500">{IMAGE_CATALOG.length} images • Tap to explore</p>
+              </div>
+              <button 
+                onClick={() => setShowGallery(false)}
+                className="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Images by Pattern */}
+            {Object.entries(getGalleryPatterns()).map(([pattern, images]) => (
+              <div key={pattern} className="mb-8">
+                <h3 className="text-sm font-medium text-stone-400 uppercase tracking-wide mb-3">{pattern}</h3>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                  {images.map((img, i) => (
+                    <button
+                      key={i}
+                      onClick={() => {
+                        setShowGallery(false);
+                        handleImageClick(img);
+                      }}
+                      className="relative aspect-[4/3] rounded-lg overflow-hidden border border-stone-800 hover:border-stone-600 transition-all group"
+                    >
+                      <img 
+                        src={img.image} 
+                        alt={img.title}
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
+                      <div className="absolute bottom-0 left-0 right-0 p-2">
+                        <p className="text-xs font-medium text-white truncate">{img.title}</p>
+                        <div className="flex items-center gap-1 mt-0.5">
+                          {img.corianColor && CORIAN_COLORS[img.corianColor] && (
+                            <div 
+                              className="w-2 h-2 rounded-full border border-white/30"
+                              style={{ backgroundColor: CORIAN_COLORS[img.corianColor].hex }}
+                            />
+                          )}
+                          <span className="text-[10px] text-stone-400">{img.sector}</span>
+                          {img.isBacklit && (
+                            <span className="text-[10px] text-amber-400 ml-1">✦ Backlit</span>
+                          )}
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            ))}
           </div>
         </div>
       )}
