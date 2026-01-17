@@ -1,1030 +1,909 @@
-import { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MARA V14 - Mara always present + Browse All accessible everywhere
-// ═══════════════════════════════════════════════════════════════════════════════
+// ============================================
+// MARA V15 - MR WALLS AI DESIGN ASSISTANT
+// ============================================
+// "The only AI that shows you what you can actually build."
 
-const CLOUDINARY_BASE = 'https://res.cloudinary.com/dtlodxxio/image/upload';
+// ⚠️ FAL API KEY
+const FAL_API_KEY = "3e417ede-cd4b-4b81-8116-2684760b5a70:2e1ad6ff3d9d2a171a31d6ebc2612073";
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// CORIAN COLOR DEFINITIONS
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const CORIAN_COLORS = {
-  "Glacier White": { hex: "#f5f5f5" },
-  "Deep Nocturne": { hex: "#1a1a1a" },
-  "Carbon Concrete": { hex: "#3a3a3a" },
-  "Dove": { hex: "#9a9a9a" },
-  "Neutral Concrete": { hex: "#b8b5b0" },
-  "Artista Mist": { hex: "#c5c5c5" },
-  "Laguna": { hex: "#1e3a5f" },
-  "Verdant": { hex: "#2d4a4a" }
+// LoRA Models Configuration
+const LORA_MODELS = {
+  lake: {
+    name: 'Lake',
+    trigger: 'mrlake',
+    url: 'https://v3.fal.media/files/b/0a87e361/Tc4UZShpbQ9FmneXxjoc4_pytorch_lora_weights.safetensors',
+    scale: 1.0,
+    status: 'ready', // Production ready
+    description: 'Concentric ripples radiating outward, horizontal wave ridges',
+    reliability: 'High — 1-3 generations',
+    patternDescription: 'carved white Corian horizontal wave ridges'
+  },
+  flame: {
+    name: 'Flame',
+    trigger: 'mrflame',
+    url: 'https://v3.fal.media/files/b/0a883628/Iyraeb6tJunafTQ8q_i5N_pytorch_lora_weights.safetensors',
+    scale: 1.3,
+    status: 'internal', // Internal only
+    description: 'Flowing vertical waves that interweave and cross, varying widths',
+    reliability: 'Low — ~15 generations needed',
+    patternDescription: 'carved white Corian flowing vertical waves interweaving'
+  },
+  fins: {
+    name: 'Fins',
+    trigger: 'fnptrn',
+    url: 'https://v3.fal.media/files/b/0a87f1e6/mBUGXAbUMaM1wWFhzhI9g_pytorch_lora_weights.safetensors',
+    scale: 1.0,
+    status: 'untested', // Needs testing
+    description: 'Diamond chevron fins with radiating parallel ridges',
+    reliability: 'Unknown — untested',
+    patternDescription: 'carved white Corian diamond chevron fins'
+  }
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// IMAGE CATALOG
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const IMAGE_CATALOG = [
-  // INDUSTRIAL BRICK - 6 Colors
-  {
-    id: 'industrial-brick-carbon',
-    pattern: 'Industrial Brick',
-    patternFamily: 'Industrial Brick',
-    title: 'Industrial Brick',
-    sector: 'Aviation',
-    corianColor: 'Carbon Concrete',
-    mood: ['dramatic', 'industrial', 'modern'],
-    isBacklit: false,
-    keywords: ['industrial', 'brick', 'carbon', 'concrete', 'dark', 'grey', 'gray', 'aviation', 'airport'],
-    image: `${CLOUDINARY_BASE}/Carbon_Concrete-industrial_vxloqv.png`,
-    specs: { material: 'DuPont Corian®', color: 'Carbon Concrete', maxPanel: '144" × 60"', leadTime: '6-10 Weeks', pricePerSF: 25, system: 'InterlockPanel™' },
-    description: 'Industrial Brick in Carbon Concrete — dark shale grey. The texture pops against the dark background.'
+// Sectors and Applications
+const SECTORS = {
+  healthcare: {
+    name: 'Healthcare',
+    applications: ['Lobby', 'Elevator Lobby', 'Patient Room', 'Meditation Room', 'MRI Suite']
   },
-  {
-    id: 'industrial-brick-dove',
-    pattern: 'Industrial Brick',
-    patternFamily: 'Industrial Brick',
-    title: 'Industrial Brick',
-    sector: 'Aviation',
-    corianColor: 'Dove',
-    mood: ['warm', 'neutral', 'calm'],
-    isBacklit: false,
-    keywords: ['industrial', 'brick', 'dove', 'grey', 'gray', 'warm', 'soft', 'aviation'],
-    image: `${CLOUDINARY_BASE}/Dove_industrial_w6jvlx.png`,
-    specs: { material: 'DuPont Corian®', color: 'Dove', maxPanel: '144" × 60"', leadTime: '6-10 Weeks', pricePerSF: 25, system: 'InterlockPanel™' },
-    description: 'Industrial Brick in Dove — soft warm grey. Versatile, inviting, works anywhere.'
+  corporate: {
+    name: 'Corporate',
+    applications: ['Reception', 'Elevator Lobby', 'Boardroom', 'Executive Office']
   },
-  {
-    id: 'industrial-brick-neutral',
-    pattern: 'Industrial Brick',
-    patternFamily: 'Industrial Brick',
-    title: 'Industrial Brick',
-    sector: 'Aviation',
-    corianColor: 'Neutral Concrete',
-    mood: ['neutral', 'honest', 'modern'],
-    isBacklit: false,
-    keywords: ['industrial', 'brick', 'neutral', 'concrete', 'light', 'grey', 'gray', 'aviation'],
-    image: `${CLOUDINARY_BASE}/Neautral_concrete-industrial_v7gbel.png`,
-    specs: { material: 'DuPont Corian®', color: 'Neutral Concrete', maxPanel: '144" × 60"', leadTime: '6-10 Weeks', pricePerSF: 25, system: 'InterlockPanel™' },
-    description: 'Industrial Brick in Neutral Concrete — reads as honest material. Architects love it.'
+  hospitality: {
+    name: 'Hospitality',
+    applications: ['Hotel Lobby', 'Restaurant', 'Bar', 'Spa', 'Casino']
   },
-  {
-    id: 'industrial-brick-artista',
-    pattern: 'Industrial Brick',
-    patternFamily: 'Industrial Brick',
-    title: 'Industrial Brick',
-    sector: 'Aviation',
-    corianColor: 'Artista Mist',
-    mood: ['subtle', 'refined', 'calm'],
-    isBacklit: false,
-    keywords: ['industrial', 'brick', 'artista', 'mist', 'grey', 'gray', 'subtle', 'aviation'],
-    image: `${CLOUDINARY_BASE}/Artista_Mist_Industrial_zfaemp.png`,
-    specs: { material: 'DuPont Corian®', color: 'Artista Mist', maxPanel: '144" × 60"', leadTime: '6-10 Weeks', pricePerSF: 25, system: 'InterlockPanel™' },
-    description: 'Industrial Brick in Artista Mist — subtle movement in the surface.'
-  },
-  {
-    id: 'industrial-brick-laguna',
-    pattern: 'Industrial Brick',
-    patternFamily: 'Industrial Brick',
-    title: 'Industrial Brick',
-    sector: 'Aviation',
-    corianColor: 'Laguna',
-    mood: ['bold', 'dramatic', 'statement'],
-    isBacklit: false,
-    keywords: ['industrial', 'brick', 'laguna', 'blue', 'deep', 'bold', 'statement', 'aviation', 'branding'],
-    image: `${CLOUDINARY_BASE}/Laguna-blue-industrial_ksz6w7.png`,
-    specs: { material: 'DuPont Corian®', color: 'Laguna', maxPanel: '144" × 60"', leadTime: '6-10 Weeks', pricePerSF: 25, system: 'InterlockPanel™' },
-    description: 'Industrial Brick in Laguna — bold deep blue. Makes a real statement.'
-  },
-  {
-    id: 'industrial-brick-verdant',
-    pattern: 'Industrial Brick',
-    patternFamily: 'Industrial Brick',
-    title: 'Industrial Brick',
-    sector: 'Aviation',
-    corianColor: 'Verdant',
-    mood: ['natural', 'calm', 'biophilic'],
-    isBacklit: false,
-    keywords: ['industrial', 'brick', 'verdant', 'green', 'teal', 'nature', 'calming', 'aviation'],
-    image: `${CLOUDINARY_BASE}/Verdant_Industrial_bmkodk.png`,
-    specs: { material: 'DuPont Corian®', color: 'Verdant', maxPanel: '144" × 60"', leadTime: '6-10 Weeks', pricePerSF: 25, system: 'InterlockPanel™' },
-    description: 'Industrial Brick in Verdant — brings nature in. The deep teal is surprisingly calming.'
-  },
-
-  // BILLOW
-  {
-    id: 'billow-render',
-    pattern: 'Billow',
-    title: 'Billow White',
-    sector: 'General',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'organic', 'flowing'],
-    isBacklit: false,
-    keywords: ['billow', 'wave', 'organic', 'flowing', 'texture', 'white', 'calm'],
-    image: `${CLOUDINARY_BASE}/Billow_-_Render-001_copy_ujsmd4.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Billow pattern — gentle horizontal waves like wind across water. Organic, calming.'
-  },
-
-  // SEATTLE
-  {
-    id: 'seattle-1',
-    pattern: 'Seattle',
-    title: 'Seattle Tiles',
-    sector: 'Healthcare',
-    corianColor: 'Mixed',
-    mood: ['calm', 'modular', 'clinical'],
-    isBacklit: false,
-    keywords: ['seattle', 'tile', 'modular', 'healthcare', 'hospital', 'corridor'],
-    image: `${CLOUDINARY_BASE}/Seattle-V2-tile-02_bvcqwc.png`,
-    specs: { material: 'DuPont Corian®', color: 'Mixed (Dove + Glacier White)', maxPanel: '24" × 24" tiles', leadTime: '4 Weeks', pricePerSF: 35, system: 'Modular Tile' },
-    description: 'Seattle modular tiles — alternating carved wave and flat panels. Perfect for healthcare.'
-  },
-
-  // GREAT WAVE
-  {
-    id: 'greatwave-1',
-    pattern: 'Great Wave',
-    title: 'Great Wave Artistic',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['dramatic', 'artistic', 'statement'],
-    isBacklit: false,
-    keywords: ['great wave', 'wave', 'ocean', 'japanese', 'hokusai', 'dramatic', 'artistic'],
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_03_copy_herewl.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 48"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Great Wave — inspired by Hokusai. Dramatic, artistic statement piece.'
-  },
-  {
-    id: 'greatwave-shower',
-    pattern: 'Great Wave',
-    title: 'Great Wave Shower',
-    sector: 'Residential',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'luxury', 'spa'],
-    isBacklit: false,
-    keywords: ['great wave', 'shower', 'bathroom', 'residential', 'luxury', 'spa'],
-    image: `${CLOUDINARY_BASE}/Lim_Great_Wave_shower_contrast_square_copy_yvkh08.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 48"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Great Wave in residential shower — seamless, no grout lines.'
-  },
-  {
-    id: 'greatwave-exterior',
-    pattern: 'Great Wave',
-    title: 'Great Wave Exterior',
-    sector: 'Residential',
-    corianColor: 'Glacier White',
-    mood: ['dramatic', 'outdoor'],
-    isBacklit: false,
-    keywords: ['great wave', 'exterior', 'facade', 'outdoor', 'pool'],
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_20_copy_abzou8.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 48"', leadTime: '8 Weeks', pricePerSF: 65, enhancement: 'UV-Stable Exterior', system: 'French Cleat' },
-    description: 'Great Wave on exterior facade — UV-stable formulation handles full sun.'
-  },
-  {
-    id: 'greatwave-restaurant',
-    pattern: 'Great Wave',
-    title: 'Great Wave Restaurant',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['dramatic', 'statement', 'social'],
-    isBacklit: false,
-    keywords: ['great wave', 'restaurant', 'hospitality', 'dining', 'feature wall'],
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_09_copy_lcqfa0.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 48"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Great Wave as restaurant feature wall — photographs beautifully.'
-  },
-  {
-    id: 'greatwave-lobby',
-    pattern: 'Great Wave',
-    title: 'Great Wave Lobby',
-    sector: 'Corporate',
-    corianColor: 'Glacier White',
-    mood: ['dramatic', 'bold', 'corporate'],
-    isBacklit: false,
-    keywords: ['great wave', 'lobby', 'corporate', 'reception', 'feature wall'],
-    image: `${CLOUDINARY_BASE}/Great_Wave_banana_16_copy_ojsshm.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 48"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Great Wave in corporate lobby — makes a statement about creativity.'
-  },
-
-  // BRICK WATER FEATURE
-  {
-    id: 'brick-water-1',
-    pattern: 'Brick',
-    title: 'Brick Water Feature',
-    sector: 'Residential',
-    corianColor: 'Deep Nocturne',
-    mood: ['dramatic', 'luxury', 'tropical'],
-    isBacklit: false,
-    keywords: ['brick', 'water', 'fountain', 'pool', 'waterfall', 'outdoor', 'black'],
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_05_copy_kewkyh.png`,
-    specs: { material: 'DuPont Corian®', color: 'Deep Nocturne (Black)', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 85, enhancement: 'Water Feature', system: 'InterlockPanel™' },
-    description: 'Brick pattern water feature in black — carved lines channel water into waterfalls.'
-  },
-  {
-    id: 'brick-water-2',
-    pattern: 'Brick',
-    title: 'Brick Pool Wall',
-    sector: 'Residential',
-    corianColor: 'Deep Nocturne',
-    mood: ['dramatic', 'resort', 'luxury'],
-    isBacklit: false,
-    keywords: ['brick', 'water', 'pool', 'outdoor', 'cabana', 'resort', 'black'],
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_18_copy_oce67r.png`,
-    specs: { material: 'DuPont Corian®', color: 'Deep Nocturne (Black)', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 85, enhancement: 'Water Feature', system: 'InterlockPanel™' },
-    description: 'Monumental Brick water feature in black anchoring resort-style pool.'
-  },
-  {
-    id: 'brick-water-3',
-    pattern: 'Brick',
-    title: 'Brick Backlit + Water',
-    sector: 'Residential',
-    corianColor: 'Glacier White',
-    mood: ['dramatic', 'luxury', 'glowing'],
-    isBacklit: true,
-    keywords: ['brick', 'water', 'backlit', 'backlight', 'glow', 'night', 'dramatic', 'white'],
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_20_copy_ffh4px.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '10 Weeks', pricePerSF: 120, enhancement: 'Backlit + Water Feature', system: 'InterlockPanel™' },
-    description: 'Brick with backlighting AND water — light glows through carved channels.'
-  },
-  {
-    id: 'brick-water-4',
-    pattern: 'Brick',
-    title: 'Brick Night Ambient',
-    sector: 'Residential',
-    corianColor: 'Deep Nocturne',
-    mood: ['dramatic', 'evening', 'ambient'],
-    isBacklit: false,
-    keywords: ['brick', 'water', 'night', 'evening', 'black', 'ambient'],
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_27_copy_nxcqhx.png`,
-    specs: { material: 'DuPont Corian®', color: 'Deep Nocturne (Black)', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 85, enhancement: 'Water Feature', system: 'InterlockPanel™' },
-    description: 'Brick water feature at night — uplighting catches the spray.'
-  },
-  {
-    id: 'brick-water-5',
-    pattern: 'Brick',
-    title: 'Brick Daylight',
-    sector: 'Residential',
-    corianColor: 'Deep Nocturne',
-    mood: ['natural', 'outdoor', 'daylight'],
-    isBacklit: false,
-    keywords: ['brick', 'water', 'day', 'daylight', 'natural', 'pool', 'black'],
-    image: `${CLOUDINARY_BASE}/Brick_waterfeature_12_copy_gdmjok.png`,
-    specs: { material: 'DuPont Corian®', color: 'Deep Nocturne (Black)', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 85, enhancement: 'Water Feature', system: 'InterlockPanel™' },
-    description: 'Brick water feature in bright daylight — texture catches sun.'
-  },
-
-  // BUDDHA (backlit)
-  {
-    id: 'buddha-1',
-    pattern: 'Buddha Mandala',
-    title: 'Buddha Mandala Spa',
-    sector: 'Wellness',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'spiritual', 'meditation', 'zen'],
-    isBacklit: true,
-    keywords: ['buddha', 'zen', 'meditation', 'spiritual', 'calm', 'spa', 'wellness', 'backlit', 'backlight', 'glow'],
-    image: `${CLOUDINARY_BASE}/spa-_Buddha_2_zid08z.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 75, enhancement: 'Backlighting', system: 'InterlockPanel™' },
-    description: 'Buddha mandala — custom carved with intricate detail. Backlit for ethereal glow.'
-  },
-  {
-    id: 'buddha-2',
-    pattern: 'Buddha Mandala',
-    title: 'Buddha Restaurant',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'zen', 'warm', 'dining'],
-    isBacklit: true,
-    keywords: ['buddha', 'restaurant', 'asian', 'zen', 'dining', 'backlit', 'backlight'],
-    image: `${CLOUDINARY_BASE}/Spa_Buddha_restaurant_yybtdi.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 75, enhancement: 'Backlighting', system: 'InterlockPanel™' },
-    description: 'Buddha in restaurant setting — warm backlighting sets the mood.'
-  },
-
-  // MARILYN
-  {
-    id: 'marilyn-1',
-    pattern: 'Custom Portrait',
-    title: 'Marilyn Portrait',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['artistic', 'bold', 'custom', 'iconic'],
-    isBacklit: false,
-    keywords: ['marilyn', 'portrait', 'hollywood', 'custom', 'branding', 'art', 'celebrity'],
-    image: `${CLOUDINARY_BASE}/Marilynn_sm_copy_gcvzcb.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 85, system: 'InterlockPanel™' },
-    description: 'Custom Marilyn portrait — any image can be carved. Brand logos, celebrities, custom artwork.'
-  },
-  {
-    id: 'marilyn-2',
-    pattern: 'Custom Portrait',
-    title: 'Marilyn Art',
-    sector: 'Art',
-    corianColor: 'Glacier White',
-    mood: ['artistic', 'gallery', 'sculptural'],
-    isBacklit: false,
-    keywords: ['marilyn', 'portrait', 'art', 'gallery', 'sculpture'],
-    image: `${CLOUDINARY_BASE}/Maryilynn2_c71acw.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 85, system: 'InterlockPanel™' },
-    description: 'Marilyn as gallery art piece — carved Corian bridges architecture and fine art.'
-  },
-
-  // FINS
-  {
-    id: 'fins-1',
-    pattern: 'Fins',
-    title: 'Fins Exterior',
-    sector: 'Corporate',
-    corianColor: 'Glacier White',
-    mood: ['modern', 'architectural', 'shadow'],
-    isBacklit: false,
-    keywords: ['fins', 'exterior', 'facade', 'corporate', 'modern', 'dimensional'],
-    image: `${CLOUDINARY_BASE}/Fins_exterior_white_gcccvq.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '120" × 60"', leadTime: '8 Weeks', pricePerSF: 75, enhancement: 'UV-Stable Exterior', system: 'French Cleat' },
-    description: 'Fins pattern on exterior facade — dimensional fins create deep shadow lines.'
-  },
-  {
-    id: 'fins-2',
-    pattern: 'Fins',
-    title: 'Fins Patio',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['outdoor', 'dining', 'architectural'],
-    isBacklit: false,
-    keywords: ['fins', 'exterior', 'patio', 'restaurant', 'outdoor', 'dining'],
-    image: `${CLOUDINARY_BASE}/Fins_exterior2_lh1vlw.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '120" × 60"', leadTime: '8 Weeks', pricePerSF: 75, enhancement: 'UV-Stable Exterior', system: 'French Cleat' },
-    description: 'Fins on restaurant patio — architectural backdrop for outdoor dining.'
-  },
-
-  // FLAME
-  {
-    id: 'flame-1',
-    pattern: 'Flame',
-    title: 'Flame Pattern',
-    sector: 'General',
-    corianColor: 'Glacier White',
-    mood: ['warm', 'organic', 'flowing', 'vertical'],
-    isBacklit: false,
-    keywords: ['flame', 'fire', 'warm', 'organic', 'flowing', 'vertical'],
-    image: `${CLOUDINARY_BASE}/Flame-_qle4y3.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Flame pattern — flowing vertical waves that interweave. Warm, organic, dynamic.'
-  },
-  {
-    id: 'flame-bed',
-    pattern: 'Flame',
-    title: 'Flame Headboard',
-    sector: 'Residential',
-    corianColor: 'Glacier White',
-    mood: ['warm', 'intimate', 'luxury'],
-    isBacklit: false,
-    keywords: ['flame', 'bedroom', 'headboard', 'residential', 'luxury', 'warm'],
-    image: `${CLOUDINARY_BASE}/Flamebed_yggqrp.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Flame as headboard wall — warm, inviting, perfect for primary bedroom.'
-  },
-  {
-    id: 'flame-pink',
-    pattern: 'Flame',
-    title: 'Flame Pink RGB',
-    sector: 'Residential',
-    corianColor: 'Glacier White',
-    mood: ['dramatic', 'romantic', 'bold', 'glowing'],
-    isBacklit: true,
-    keywords: ['flame', 'pink', 'rgb', 'backlit', 'backlight', 'bedroom', 'romantic', 'glow'],
-    image: `${CLOUDINARY_BASE}/Flame_pink_obxnpm.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '8 Weeks', pricePerSF: 65, enhancement: 'RGB Backlighting', system: 'InterlockPanel™' },
-    description: 'Flame with pink RGB backlighting — dramatic, romantic atmosphere.'
-  },
-  {
-    id: 'flame-lobby',
-    pattern: 'Flame',
-    title: 'Flame Lobby',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['warm', 'energy', 'dramatic'],
-    isBacklit: false,
-    keywords: ['flame', 'lobby', 'feature', 'hospitality', 'hotel'],
-    image: `${CLOUDINARY_BASE}/Flames_qthl01.jpg`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '6 Weeks', pricePerSF: 50, system: 'InterlockPanel™' },
-    description: 'Flame in hospitality lobby — vertical movement draws the eye up.'
-  },
-
-  // DESERT SUNSET
-  {
-    id: 'desert-sunset-1',
-    pattern: 'Desert Sunset',
-    title: 'Desert Sunset Cactus',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'regional', 'warm', 'southwestern'],
-    isBacklit: true,
-    keywords: ['desert', 'sunset', 'cactus', 'arizona', 'southwest', 'scottsdale', 'backlit', 'backlight'],
-    image: `${CLOUDINARY_BASE}/v1768111216/mr-render-1767989995638_copy_vtszj0.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', height: '142"', width: '239¾"', slabs: 5, leadTime: '4 Weeks', pricePerSF: 35, enhancement: 'Backlighting', system: 'InterlockPanel™' },
-    shopDrawing: `${CLOUDINARY_BASE}/v1768330379/shop_drawing-Cactus_rovjta.png`,
-    description: 'Desert Sunset — saguaro cactus silhouettes against carved mountain ridges. Southwest hospitality.'
-  },
-  {
-    id: 'desert-sunset-2',
-    pattern: 'Desert Sunset',
-    title: 'Desert Sunset Mountains',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'warm', 'southwestern'],
-    isBacklit: false,
-    keywords: ['desert', 'sunset', 'mountain', 'landscape', 'southwest', 'warm'],
-    image: `${CLOUDINARY_BASE}/v1768111216/mr-render-1767992780170_ufyyef.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '4 Weeks', pricePerSF: 35, system: 'InterlockPanel™' },
-    description: 'Desert Sunset variation — mountain ridges and desert sky.'
-  },
-  {
-    id: 'desert-sunset-3',
-    pattern: 'Desert Sunset',
-    title: 'Desert Mountains Orange',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['warm', 'sunset', 'southwestern'],
-    isBacklit: false,
-    keywords: ['desert', 'mountain', 'landscape', 'warm', 'orange', 'hospitality'],
-    image: `${CLOUDINARY_BASE}/mr-render-1768082338412_copy_wqymkx.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '4 Weeks', pricePerSF: 35, system: 'InterlockPanel™' },
-    description: 'Desert mountain landscape — carved ridgelines evoke the Southwest.'
-  },
-  {
-    id: 'desert-sunset-4',
-    pattern: 'Desert Sunset',
-    title: 'Desert Abstract',
-    sector: 'Hospitality',
-    corianColor: 'Glacier White',
-    mood: ['calm', 'abstract', 'minimal'],
-    isBacklit: false,
-    keywords: ['desert', 'abstract', 'landscape', 'artistic'],
-    image: `${CLOUDINARY_BASE}/mr-render-1767989272197_copy_eka0g1.png`,
-    specs: { material: 'DuPont Corian®', color: 'Glacier White', maxPanel: '144" × 60"', leadTime: '4 Weeks', pricePerSF: 35, system: 'InterlockPanel™' },
-    description: 'Desert Sunset abstract — simplified mountain forms.'
-  },
-
-  // SAND DUNE
-  {
-    id: 'sanddune-curved-black',
-    pattern: 'Sand Dune',
-    title: 'Sand Dune Curved',
-    sector: 'Corporate',
-    corianColor: 'Deep Nocturne',
-    mood: ['dramatic', 'sculptural', 'bold'],
-    isBacklit: false,
-    keywords: ['sand dune', 'curved', 'black', 'column', 'dramatic', 'thermoformed'],
-    image: `${CLOUDINARY_BASE}/Fins_Sandune_texture_Curved_black_m1vtil.png`,
-    specs: { material: 'DuPont Corian®', color: 'Deep Nocturne (Black)', maxPanel: '144" × 60"', leadTime: '10 Weeks', pricePerSF: 95, enhancement: 'Thermoformed Curve', system: 'InterlockPanel™' },
-    description: 'Sand Dune pattern thermoformed into dramatic curved column.'
+  residential: {
+    name: 'Residential',
+    applications: ['Living Room', 'Bathroom', 'Fireplace', 'Water Feature', 'Shower']
   }
-];
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// SMART FAMILY GROUPING
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const getFamilyImages = (selectedImage) => {
-  if (!selectedImage) return [];
-  
-  // Tier 1: Same pattern family, different colors
-  if (selectedImage.patternFamily) {
-    const colorVariants = IMAGE_CATALOG.filter(
-      img => img.patternFamily === selectedImage.patternFamily && img.id !== selectedImage.id
-    );
-    if (colorVariants.length >= 3) return colorVariants.slice(0, 4);
-  }
-  
-  // Tier 2: Same pattern, different applications
-  const patternVariants = IMAGE_CATALOG.filter(
-    img => img.pattern === selectedImage.pattern && img.id !== selectedImage.id
-  );
-  if (patternVariants.length >= 3) return patternVariants.slice(0, 4);
-  
-  // Tier 3: Similar attributes
-  const similar = IMAGE_CATALOG.map(img => {
-    if (img.id === selectedImage.id) return { ...img, score: -1 };
-    let score = 0;
-    if (selectedImage.isBacklit && img.isBacklit) score += 5;
-    if (selectedImage.specs.enhancement && img.specs.enhancement === selectedImage.specs.enhancement) score += 3;
-    const sharedMoods = selectedImage.mood?.filter(m => img.mood?.includes(m)) || [];
-    score += sharedMoods.length * 2;
-    if (img.sector === selectedImage.sector) score += 2;
-    const sharedKeywords = selectedImage.keywords.filter(k => img.keywords.includes(k));
-    score += Math.min(sharedKeywords.length, 3);
-    return { ...img, score };
-  })
-  .filter(img => img.score > 2)
-  .sort((a, b) => b.score - a.score)
-  .slice(0, 4);
-  
-  if (similar.length < 2) {
-    return IMAGE_CATALOG.filter(img => img.id !== selectedImage.id).slice(0, 4);
-  }
-  return similar;
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// SEARCH - Strict backlight filtering
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const searchImages = (query) => {
-  if (!query) return [];
-  const lower = query.toLowerCase();
-  
-  // STRICT BACKLIGHT
-  if (lower.includes('backlight') || lower.includes('backlit') || lower.includes('glow') || lower.includes('illuminat')) {
-    return IMAGE_CATALOG.filter(img => img.isBacklit === true).slice(0, 2);
+// Prompt Templates
+const PROMPT_TEMPLATES = {
+  healthcare: {
+    'Lobby': 'Grand modern hospital atrium lobby with double height glass curtain walls, sweeping curved reception desk, monumental floor to ceiling backlit feature wall with {pattern}, warm white translucent glow, polished concrete floors, indoor trees, natural daylight flooding in, Cedars-Sinai scale, hyperrealistic healthcare architecture photography',
+    'Elevator Lobby': 'Hospital elevator lobby with curved thermoformed walls wrapping around two elevator doors with bronze frames, {pattern}, warm amber wash lighting, LED cove light strip following curved ceiling line, polished stone floor, immersive sculptural healthcare interior, architectural photography',
+    'Patient Room': 'Upscale hospital patient suite with comfortable bed, backlit headboard wall with {pattern}, soft warm glow, boutique hotel aesthetic, wood grain accents, armchair for visitors, large window with garden view, natural daylight, healing hospitality design',
+    'Meditation Room': 'Hospital meditation and prayer room, floor to ceiling backlit feature wall with {pattern}, soft warm amber glow, wooden bench seating, peaceful spiritual atmosphere, healthcare wellness design',
+    'MRI Suite': 'Modern MRI suite with calming backlit feature wall featuring {pattern}, soft blue-white glow, metal-free construction, patient-focused healing environment'
+  },
+  corporate: {
+    'Reception': 'Modern corporate headquarters lobby with floor to ceiling feature wall featuring {pattern}, grazing light revealing sculptural depth, polished concrete floor, reception desk, architectural photography',
+    'Elevator Lobby': 'Corporate elevator lobby with stainless steel elevator doors, floor to ceiling backlit translucent wall with {pattern} glowing from behind, RGB LED backlighting transitioning colors, commercial office interior photography',
+    'Boardroom': 'Executive boardroom with dramatic feature wall of {pattern}, warm ambient lighting, polished conference table, leather chairs, sophisticated corporate interior',
+    'Executive Office': 'Corner executive office with floor to ceiling windows, accent wall featuring {pattern} with subtle grazing light, modern desk, city views'
+  },
+  hospitality: {
+    'Hotel Lobby': 'Luxury hotel lobby with soaring ceilings, monumental backlit feature wall with {pattern}, warm golden glow, marble floors, designer furniture, dramatic arrival experience',
+    'Restaurant': 'Upscale restaurant interior with feature wall of {pattern}, warm ambient lighting, intimate dining atmosphere, fine dining setting',
+    'Bar': 'High-end bar with dramatic backlit wall featuring {pattern}, RGB color-changing lighting, polished bar top, moody sophisticated atmosphere',
+    'Spa': 'Luxury spa reception with calming feature wall of {pattern}, soft diffused backlighting, tranquil wellness environment, natural materials',
+    'Casino': 'Casino interior with dramatic wall installation featuring {pattern}, dynamic RGB backlighting, high-energy entertainment environment'
+  },
+  residential: {
+    'Living Room': 'Contemporary living room with floor to ceiling backlit feature wall featuring {pattern} surrounding linear gas fireplace, warm amber glow, sectional sofa, hardwood floors, residential interior design',
+    'Bathroom': 'Luxury residential primary bathroom with seamless {pattern} walls, frameless glass enclosure, freestanding soaking tub, natural daylight from skylight, marble floor, spa-like atmosphere',
+    'Fireplace': 'Modern fireplace surround with dramatic {pattern}, subtle grazing light, contemporary living space, warm intimate atmosphere',
+    'Water Feature': 'Luxury residential backyard with carved Corian water feature wall, {pattern} with water cascading down surface, LED backlighting glowing through water, pool reflection, landscape architecture',
+    'Shower': 'Seamless luxury shower with {pattern} walls, frameless glass, rainfall showerhead, spa-like residential bathroom'
   }
-  
-  const terms = lower.split(/\s+/).filter(t => t.length > 2);
-  const scored = IMAGE_CATALOG.map(img => {
-    let score = 0;
-    terms.forEach(term => {
-      if (img.keywords.some(k => k.includes(term))) score += 15;
-      if (img.pattern.toLowerCase().includes(term)) score += 12;
-      if (img.sector.toLowerCase().includes(term)) score += 10;
-      if (img.title.toLowerCase().includes(term)) score += 8;
-      if (img.mood?.some(m => m.includes(term))) score += 6;
-      if (img.corianColor?.toLowerCase().includes(term)) score += 5;
-    });
-    return { ...img, score };
-  });
-  
-  return scored.filter(img => img.score > 0).sort((a, b) => b.score - a.score).slice(0, 2);
 };
 
-// ═══════════════════════════════════════════════════════════════════════════════
-// MARA SYSTEM PROMPT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-const MARA_SYSTEM_PROMPT = `You are Mara, the MR Walls design assistant. Brief, warm, knowledgeable.
-
-## RULES
-1. MAX 50 words
-2. Use [Image: id] tags for images (max 2)
-3. ONE question per response
-
-## BACKLIGHT IMAGES ONLY (isBacklit: true)
-- buddha-1, buddha-2
-- brick-water-3
-- flame-pink
-- desert-sunset-1
-
-When user asks "backlight" → ONLY show from this list.
-
-## OTHER IDS
-- Industrial Brick: industrial-brick-carbon, industrial-brick-laguna, etc.
-- Billow: billow-render
-- Great Wave: greatwave-1, greatwave-shower, etc.
-- Brick: brick-water-1 through 5
-- Flame: flame-1, flame-bed, flame-pink, flame-lobby
-- Desert Sunset: desert-sunset-1 through 4
-
-Remember: Warm, brief, show max 2 images.`;
-
-const extractImageTags = (text) => {
-  const matches = text.match(/\[Image:\s*([^\]]+)\]/g) || [];
-  return matches.map(m => {
-    const id = m.match(/\[Image:\s*([^\]]+)\]/)[1].trim();
-    return IMAGE_CATALOG.find(img => img.id === id);
-  }).filter(Boolean);
+// Backlight Colors
+const BACKLIGHT_COLORS = {
+  warm: { name: 'Warm Golden', phrase: 'warm golden LED backlighting' },
+  cool: { name: 'Cool White', phrase: 'cool white LED backlighting' },
+  pink: { name: 'Pink', phrase: 'pink LED backlighting' },
+  blue: { name: 'Blue', phrase: 'cool blue LED backlighting' },
+  cyan: { name: 'Cyan', phrase: 'cyan LED backlighting' },
+  purple: { name: 'Purple', phrase: 'purple LED backlighting' }
 };
 
-const cleanResponse = (text) => text.replace(/\[Image:\s*[^\]]+\]/g, '').trim();
-
-// ═══════════════════════════════════════════════════════════════════════════════
-// MAIN COMPONENT
-// ═══════════════════════════════════════════════════════════════════════════════
-
-export default function MaraV14() {
-  const [messages, setMessages] = useState([
-    {
-      role: 'assistant',
-      text: "Hey! I'm Mara from MR Walls. I help architects explore carved Corian surfaces.\n\nTap an image to explore, or ask me anything:",
-      images: [
-        IMAGE_CATALOG.find(i => i.id === 'buddha-1'),
-        IMAGE_CATALOG.find(i => i.id === 'greatwave-1')
-      ]
+// Design Knowledge for Mara
+const DESIGN_KNOWLEDGE = {
+  collections: {
+    organic: { 
+      name: 'Organic', 
+      patterns: ['Billow', 'Lake', 'Reeds', 'Nazare', 'Feathers', 'Miami'],
+      description: 'Flowing, nature-inspired forms — evokes water, wind, natural movement'
+    },
+    calm: { 
+      name: 'Calm', 
+      patterns: ['Clouds', 'Palisades', 'Lake', 'Mountain'],
+      description: 'Subtle, meditative textures that create serenity'
+    },
+    geometric: { 
+      name: 'Geometric', 
+      patterns: ['Topo', 'Honey', 'Herringbone', 'Chicago'],
+      description: 'Structured patterns with mathematical precision'
+    },
+    futuristic: { 
+      name: 'Futuristic', 
+      patterns: ['Custom', 'Silverstone', 'Matrix'],
+      description: 'Bold, innovative designs for forward-thinking spaces'
+    },
+    biophilic: { 
+      name: 'Biophilic', 
+      patterns: ['Honey', 'Reeds', 'Billow', 'Feathers'],
+      description: 'Nature-connected patterns supporting wellness design'
+    },
+    classic: { 
+      name: 'Classic', 
+      patterns: ['Herringbone', 'Topo', 'Feathers', 'Reeds'],
+      description: 'Timeless patterns with enduring appeal'
     }
-  ]);
-  const [input, setInput] = useState('');
-  const [loading, setLoading] = useState(false);
-  const [selectedImage, setSelectedImage] = useState(null);
-  const [familyImages, setFamilyImages] = useState([]);
-  const [specsImage, setSpecsImage] = useState(null);
-  const [showGallery, setShowGallery] = useState(false);
-  const [history, setHistory] = useState([]);
-  const messagesEndRef = useRef(null);
-  const modalInputRef = useRef(null);
+  },
+  pricing: {
+    linear: '$25/SF',
+    custom: '$50/SF',
+    backlighting: '+$15/SF',
+    waterFeature: '+$20/SF',
+    volumeDiscount: '~15% off for 2000+ SF'
+  }
+};
 
+// ============================================
+// MAIN COMPONENT
+// ============================================
+
+export default function MaraV15() {
+  // Navigation state
+  const [currentView, setCurrentView] = useState('intro'); // intro, chat, library, generate
+  const [showMara, setShowMara] = useState(false);
+  
+  // Chat state
+  const [messages, setMessages] = useState([]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
+  const messagesEndRef = useRef(null);
+  
+  // AI Generate state
+  const [selectedPattern, setSelectedPattern] = useState('lake');
+  const [selectedSector, setSelectedSector] = useState('healthcare');
+  const [selectedApplication, setSelectedApplication] = useState('Lobby');
+  const [selectedBacklight, setSelectedBacklight] = useState('warm');
+  const [customPrompt, setCustomPrompt] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [generatedImage, setGeneratedImage] = useState(null);
+  const [generationError, setGenerationError] = useState(null);
+  
+  // Scroll to bottom of messages
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
-
-  const getGalleryPatterns = () => {
-    const patterns = {};
-    IMAGE_CATALOG.forEach(img => {
-      if (!patterns[img.pattern]) patterns[img.pattern] = [];
-      patterns[img.pattern].push(img);
-    });
-    return patterns;
+  
+  // ============================================
+  // AI IMAGE GENERATION
+  // ============================================
+  
+  const buildPrompt = () => {
+    const model = LORA_MODELS[selectedPattern];
+    const template = PROMPT_TEMPLATES[selectedSector]?.[selectedApplication];
+    const backlight = BACKLIGHT_COLORS[selectedBacklight];
+    
+    if (customPrompt.trim()) {
+      // User provided custom prompt - append trigger word
+      return `${customPrompt.trim()}, ${model.trigger}`;
+    }
+    
+    if (template) {
+      // Use template with pattern and backlight
+      let prompt = template.replace('{pattern}', model.patternDescription);
+      prompt = `${prompt}, ${backlight.phrase}, ${model.trigger}`;
+      return prompt;
+    }
+    
+    // Fallback basic prompt
+    return `Architectural interior with floor to ceiling feature wall featuring ${model.patternDescription}, ${backlight.phrase}, professional architecture photography, ${model.trigger}`;
   };
-
-  const handleImageClick = (img) => {
-    const family = getFamilyImages(img);
-    setSelectedImage(img);
-    setFamilyImages(family);
-    setSpecsImage(null);
-  };
-
-  const handleFamilyClick = (img) => {
-    setSpecsImage(img);
-  };
-
-  const closeModal = () => {
-    setSelectedImage(null);
-    setFamilyImages([]);
-    setSpecsImage(null);
-  };
-
-  const closeSpecs = () => {
-    setSpecsImage(null);
-  };
-
-  const callClaude = async (userMsg, hist) => {
-    const apiMessages = [...hist, { role: 'user', content: userMsg }];
+  
+  const generateImage = async () => {
+    setIsGenerating(true);
+    setGenerationError(null);
+    setGeneratedImage(null);
+    
+    const model = LORA_MODELS[selectedPattern];
+    const prompt = buildPrompt();
+    
+    console.log('Generating with prompt:', prompt);
+    console.log('Using LoRA:', model.name, model.url);
+    
     try {
-      const response = await fetch('https://api.anthropic.com/v1/messages', {
+      const response = await fetch('https://queue.fal.run/fal-ai/flux-2/lora', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/json',
-          'anthropic-version': '2023-06-01',
-          'anthropic-dangerous-direct-browser-access': 'true',
-          'x-api-key': import.meta.env.VITE_ANTHROPIC_API_KEY,
+          'Authorization': `Key ${FAL_API_KEY}`,
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          model: 'claude-sonnet-4-20250514',
-          max_tokens: 300,
-          system: MARA_SYSTEM_PROMPT,
-          messages: apiMessages
+          prompt: prompt,
+          loras: [
+            {
+              path: model.url,
+              scale: model.scale
+            }
+          ],
+          image_size: 'landscape_16_9',
+          num_images: 1,
+          output_format: 'jpeg',
+          guidance_scale: 2.5,
+          num_inference_steps: 28,
+          enable_safety_checker: false
         })
       });
-      const data = await response.json();
-      if (data.content?.[0]) return data.content[0].text;
-      throw new Error(data.error?.message || 'API error');
-    } catch (error) {
-      console.error('Claude API error:', error);
-      return null;
-    }
-  };
-
-  const send = async (text, fromModal = false) => {
-    if (!text?.trim() || loading) return;
-    
-    const userMsg = text.trim();
-    const lower = userMsg.toLowerCase();
-    
-    // Browse intent
-    if (lower.includes('everything') || lower.includes('all image') || lower.includes('browse') || lower.includes('scroll') || lower.includes('gallery') || lower.includes('show me all') || lower.includes('see all')) {
-      setMessages(m => [...m, 
-        { role: 'user', text: userMsg },
-        { role: 'assistant', text: "Here's our full collection — tap any image to explore.", images: [] }
-      ]);
-      setShowGallery(true);
-      if (fromModal) closeModal();
-      return;
-    }
-    
-    setInput('');
-    setMessages(m => [...m, { role: 'user', text: userMsg }]);
-    setLoading(true);
-
-    const claudeResponse = await callClaude(userMsg, history);
-    
-    let responseText = '';
-    let responseImages = [];
-    
-    if (claudeResponse) {
-      responseImages = extractImageTags(claudeResponse);
-      responseText = cleanResponse(claudeResponse);
-      setHistory([...history, 
-        { role: 'user', content: userMsg },
-        { role: 'assistant', content: claudeResponse }
-      ]);
-    }
-    
-    if (!claudeResponse || responseImages.length === 0) {
-      responseImages = searchImages(userMsg);
-      if (responseImages.length > 0) {
-        responseText = responseText || `Here's what I found:`;
-      } else {
-        responseText = responseText || "What sector is this for — healthcare, hospitality, residential?";
-        responseImages = [IMAGE_CATALOG.find(i => i.id === 'buddha-1'), IMAGE_CATALOG.find(i => i.id === 'billow-render')];
-      }
-    }
-
-    setMessages(m => [...m, {
-      role: 'assistant',
-      text: responseText,
-      images: responseImages.slice(0, 2)
-    }]);
-    
-    setLoading(false);
-    
-    // If sent from modal, close it so user sees the new response
-    if (fromModal) closeModal();
-  };
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // RENDER
-  // ─────────────────────────────────────────────────────────────────────────────
-  return (
-    <div className="h-screen bg-stone-950 text-stone-100 flex flex-col" style={{ fontFamily: "'Inter', system-ui, sans-serif" }}>
       
-      {/* Header */}
-      <header className="p-4 border-b border-stone-800 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center">
-            <span className="text-lg font-semibold text-stone-300">M</span>
-          </div>
-          <div>
-            <h1 className="font-semibold text-stone-100">Mara</h1>
-            <p className="text-xs text-stone-500">MR Walls × Corian® Design</p>
-          </div>
-        </div>
-        <button
-          onClick={() => setShowGallery(true)}
-          className="flex items-center gap-2 px-3 py-2 bg-stone-900 hover:bg-stone-800 rounded-lg border border-stone-700 text-sm text-stone-300 transition-colors"
-        >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-          Browse All
-        </button>
-      </header>
-
-      {/* Messages */}
-      <main className="flex-1 overflow-y-auto p-4 space-y-4">
-        {messages.map((msg, i) => (
-          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-            <div className="max-w-[85%]">
-              <div className={`rounded-2xl px-4 py-3 ${
-                msg.role === 'user' 
-                  ? 'bg-stone-700 text-stone-100' 
-                  : 'bg-stone-900 border border-stone-800'
-              }`}>
-                <p className="text-sm whitespace-pre-wrap">{msg.text}</p>
-              </div>
-              
-              {msg.images && msg.images.length > 0 && (
-                <div className="mt-3 grid grid-cols-2 gap-3">
-                  {msg.images.map((img, j) => (
-                    <button
-                      key={j}
-                      onClick={() => handleImageClick(img)}
-                      className="relative aspect-[4/3] rounded-xl overflow-hidden border border-stone-800 hover:border-stone-600 transition-all text-left"
-                    >
-                      <img src={img.image} alt={img.title} className="w-full h-full object-cover" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-3">
-                        <p className="text-sm font-medium text-white truncate">{img.title}</p>
-                        <p className="text-xs text-stone-400">{img.pattern} • {img.sector}</p>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        ))}
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`API Error: ${response.status} - ${errorText}`);
+      }
+      
+      const result = await response.json();
+      
+      if (result.images && result.images.length > 0) {
+        setGeneratedImage({
+          url: result.images[0].url,
+          prompt: prompt,
+          pattern: model.name,
+          sector: selectedSector,
+          application: selectedApplication
+        });
+      } else {
+        throw new Error('No image returned from API');
+      }
+    } catch (error) {
+      console.error('Generation error:', error);
+      setGenerationError(error.message);
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+  
+  // ============================================
+  // MARA CHAT RESPONSES
+  // ============================================
+  
+  const getMaraResponse = (userMessage) => {
+    const msg = userMessage.toLowerCase();
+    
+    // Greetings
+    if (msg.match(/^(hi|hello|hey|good morning|good afternoon)/)) {
+      return "Hello! I'm Mara, your MR Walls design guide. Everything I show you — we can build. Shop drawings, CNC files, production-ready.\n\nWhat brings you here today? Are you exploring ideas for a specific project, or just seeing what's possible?";
+    }
+    
+    // What is MR Walls
+    if (msg.includes('what is mr walls') || msg.includes('who is mr walls') || msg.includes('tell me about mr walls')) {
+      return "MR Walls is DuPont Corian's exclusive North American partner for architectural wall surfaces. We've completed over 1,000 projects — LAX, Wynn Casino, Mercedes F1 HQ, Cedars-Sinai, SpaceX.\n\nWhat makes us different: our patented InterlockPanel™ system creates truly seamless walls at any scale. No grout lines. No visible joints. And they can be backlit.\n\nAre you working on a project, or exploring what's possible?";
+    }
+    
+    // Pricing
+    if (msg.includes('price') || msg.includes('cost') || msg.includes('how much') || msg.includes('pricing')) {
+      return "Our pricing framework:\n\n• **Linear Collection**: $25/SF — repeatable patterns, installs like tile\n• **Custom Line**: $50/SF — non-repetitive sculptural surfaces, includes shop drawings\n• **Backlighting**: +$15/SF\n• **Water features**: +$20/SF\n• **Volume (2000+ SF)**: ~15% discount\n\nFor context, premium tile systems often reach $40-60/SF installed when you factor substrate, waterproofing, grouting, and ongoing maintenance. We're competitive — and zero maintenance.\n\nWhat size wall are you thinking about?";
+    }
+    
+    // Collections
+    if (msg.includes('collection') || msg.includes('patterns') || msg.includes('designs')) {
+      return "We organize our patterns into collections based on feeling:\n\n• **Organic** — Billow, Lake, Reeds, Nazare, Feathers. Flowing, nature-inspired forms.\n• **Calm** — Clouds, Palisades, Mountain. Subtle, meditative textures.\n• **Geometric** — Topo, Honey, Herringbone. Mathematical precision.\n• **Biophilic** — Honey, Reeds, Billow. Nature-connected wellness design.\n• **Classic** — Herringbone, Topo, Feathers. Timeless appeal.\n\nWhat feeling are you going for in your space?";
+    }
+    
+    // Backlighting
+    if (msg.includes('backlight') || msg.includes('back light') || msg.includes('glow') || msg.includes('illuminat')) {
+      return "Backlighting is our signature capability — the carved surface becomes luminous.\n\n**How it works:** LED strips mount 3\" behind the panel. Light transmits through the thinner carved areas. Deeper cuts = more light = brighter glow.\n\n**Options:**\n• Static white\n• Tunable CCT (2700K-6500K)\n• RGB color-changing\n• Programmable scenes\n\n**Best patterns for backlighting:** Billow, Lake, Clouds, Palisades, Honey, Feathers.\n\nWant to see what backlit Lake looks like in your sector? Try the AI Generate feature.";
+    }
+    
+    // Healthcare
+    if (msg.includes('healthcare') || msg.includes('hospital') || msg.includes('medical') || msg.includes('clinic')) {
+      return "Healthcare is where we shine — over 40 projects, including Cedars-Sinai, Jefferson Health, Toronto General, and Hoag Hospital.\n\n**Why architects specify us for healthcare:**\n• Non-porous Corian meets infection control standards\n• No grout lines = nothing to harbor bacteria\n• Cleanable with hospital disinfectants\n• Metal-free options for MRI suites\n• Therapeutic aesthetics support healing\n\n**Popular patterns:** Clouds for patient rooms, Mountain for lobbies, Palisades for behavioral health.\n\nWhat type of healthcare space are you designing?";
+    }
+    
+    // Lake pattern
+    if (msg.includes('lake')) {
+      return "Lake is one of our most popular patterns — concentric ripples radiating outward, like a stone dropped in still water.\n\n• **Carve depth:** 1/4\"\n• **Backlight rating:** Excellent — the rings glow beautifully\n• **Best at:** 6'+ width to show full ripple pattern\n• **Perfect for:** Focal walls, water features, meditation spaces\n\nLake is also our most reliable AI-trained pattern. Want to generate a visualization of Lake in your space? Try the AI Generate feature — it's ready for client presentations.";
+    }
+    
+    // AI Generate
+    if (msg.includes('generate') || msg.includes('visualiz') || msg.includes('render') || msg.includes('ai image')) {
+      return "Our AI Generate feature uses custom-trained models to show you what we can actually build. Unlike Midjourney or DALL-E, every image has CNC files behind it.\n\n**Currently available:**\n• **Lake** ✅ — Production ready, client-facing quality\n• **Flame** ⚠️ — Internal concepting only\n• **Fins** 🔄 — Being tested\n\nTry it now — select AI Generate in the navigation above. No email required. Generate as many as you want.";
+    }
+    
+    // Technical / InterlockPanel
+    if (msg.includes('interlock') || msg.includes('technical') || msg.includes('install') || msg.includes('spec')) {
+      return "**InterlockPanel™ Technology** (US Patent 11,899,418 B2)\n\nOur patented puzzle-piece joining system:\n• Panels interlock with CNC precision (±1/64\")\n• Seams filled with color-matched adhesive (1/32\")\n• Overall tolerance: ±1/16\" across full installation\n• Install rate: ~300 SF/day — 40% faster than tile\n• Zero field cutting — panels arrive ready to fit\n\n**Mounting options:**\n• 100% silicone: Up to 13' height\n• Concealed screws: Over 13'\n• French cleat: Exterior/facade\n\n**Clearances:** 3\" minimum for backlighting\n\nWant me to go deeper on any specs?";
+    }
+    
+    // Default response
+    return "I'm here to help you explore MR Walls for your project. I can discuss:\n\n• **Patterns & Collections** — what feeling fits your space\n• **Backlighting** — how we make walls glow\n• **Technical specs** — InterlockPanel system, materials, durability\n• **Sector guidance** — healthcare, hospitality, corporate, residential\n• **Pricing** — when you're ready\n\nOr try our **AI Generate** feature to see patterns in architectural contexts. What interests you?";
+  };
+  
+  const handleSendMessage = () => {
+    if (!inputValue.trim()) return;
+    
+    const userMessage = inputValue.trim();
+    setMessages(prev => [...prev, { role: 'user', content: userMessage }]);
+    setInputValue('');
+    setIsTyping(true);
+    
+    // Simulate thinking delay
+    setTimeout(() => {
+      const response = getMaraResponse(userMessage);
+      setMessages(prev => [...prev, { role: 'assistant', content: response }]);
+      setIsTyping(false);
+    }, 800 + Math.random() * 400);
+  };
+  
+  // ============================================
+  // RENDER FUNCTIONS
+  // ============================================
+  
+  // Intro Screen - Centered Mara Opening
+  const renderIntro = () => (
+    <div className="min-h-screen bg-gradient-to-b from-stone-50 to-white flex flex-col items-center justify-center px-6">
+      {/* Mara Avatar */}
+      <div className="w-20 h-20 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mb-8 shadow-lg">
+        <span className="text-white text-3xl font-light">M</span>
+      </div>
+      
+      {/* Opening Message */}
+      <div className="max-w-2xl text-center">
+        <h1 className="text-3xl font-light text-stone-800 mb-4">
+          I'm Mara, your MR Walls design guide.
+        </h1>
+        <p className="text-lg text-stone-600 mb-2">
+          Everything I show you — we can build.
+        </p>
+        <p className="text-stone-500 mb-8">
+          Shop drawings. CNC files. Production-ready.
+        </p>
         
-        {loading && (
-          <div className="flex justify-start">
-            <div className="bg-stone-900 border border-stone-800 rounded-2xl px-4 py-3">
-              <div className="flex gap-1">
-                <span className="w-2 h-2 bg-stone-600 rounded-full animate-bounce" />
-                <span className="w-2 h-2 bg-stone-600 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                <span className="w-2 h-2 bg-stone-600 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-              </div>
-            </div>
-          </div>
-        )}
-        <div ref={messagesEndRef} />
-      </main>
-
-      {/* Input */}
-      <footer className="p-4 border-t border-stone-800">
-        <div className="flex gap-3">
-          <input
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && send(input)}
-            placeholder="Ask about patterns, colors, backlighting..."
-            disabled={loading}
-            className="flex-1 px-4 py-3 bg-stone-900 border border-stone-700 rounded-xl text-sm focus:outline-none focus:border-stone-500 disabled:opacity-50"
-          />
+        {/* Tagline */}
+        <p className="text-sm text-amber-600 font-medium mb-12">
+          The only AI that shows you what you can actually build.
+        </p>
+        
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
           <button
-            onClick={() => send(input)}
-            disabled={loading || !input.trim()}
-            className="px-5 py-3 bg-stone-100 text-stone-900 rounded-xl font-medium text-sm hover:bg-white disabled:opacity-50 transition-colors"
+            onClick={() => {
+              setCurrentView('chat');
+              setMessages([{
+                role: 'assistant',
+                content: "Hello! I'm Mara. What kind of project are you working on? I can help you explore patterns, discuss applications, or visualize ideas."
+              }]);
+            }}
+            className="px-8 py-4 bg-stone-800 text-white rounded-lg hover:bg-stone-700 transition-colors"
           >
-            Send
+            Chat with Mara
+          </button>
+          <button
+            onClick={() => setCurrentView('generate')}
+            className="px-8 py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 transition-colors"
+          >
+            AI Generate
+          </button>
+          <button
+            onClick={() => setCurrentView('library')}
+            className="px-8 py-4 border border-stone-300 text-stone-700 rounded-lg hover:bg-stone-50 transition-colors"
+          >
+            Ready to Spec
           </button>
         </div>
-      </footer>
-
-      {/* FAMILY MODAL - with Mara input */}
-      {selectedImage && !specsImage && (
-        <div className="fixed inset-0 bg-black/90 z-50 overflow-y-auto">
-          <div className="max-w-4xl mx-auto p-4">
-            {/* Close + Browse buttons */}
-            <div className="flex justify-between items-center mb-4">
-              <button
-                onClick={() => setShowGallery(true)}
-                className="flex items-center gap-2 px-3 py-2 bg-stone-800 hover:bg-stone-700 rounded-lg text-sm text-stone-300"
-              >
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-                </svg>
-                Browse All
-              </button>
-              <button 
-                onClick={closeModal}
-                className="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white"
-              >
-                ✕
-              </button>
-            </div>
-
-            {/* Selected Image */}
-            <div className="aspect-video relative rounded-xl overflow-hidden mb-4">
-              <img src={selectedImage.image} alt={selectedImage.title} className="w-full h-full object-cover" />
-              <div className="absolute bottom-4 left-4 bg-black/60 backdrop-blur-sm rounded-lg px-4 py-2">
-                <div className="text-lg font-medium">{selectedImage.title}</div>
-                <div className="text-sm text-stone-300">{selectedImage.pattern} • {selectedImage.sector}</div>
-              </div>
-            </div>
-
-            {/* Mara Panel */}
-            <div className="bg-stone-900 border border-stone-800 rounded-xl p-4 mb-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div className="w-8 h-8 bg-gradient-to-br from-stone-700 to-stone-800 rounded-full flex items-center justify-center text-xs font-medium shrink-0">M</div>
-                <div className="flex-1">
-                  <p className="text-sm text-stone-300">{selectedImage.description}</p>
-                  <p className="text-sm text-stone-500 mt-2">Tap a related image below for specs, or ask me anything.</p>
+      </div>
+      
+      {/* Subtle scroll hint */}
+      <div className="absolute bottom-8 text-stone-400 text-sm">
+        Powered by MR Walls • DuPont Corian Partner
+      </div>
+    </div>
+  );
+  
+  // Navigation Header
+  const renderHeader = () => (
+    <header className="fixed top-0 left-0 right-0 bg-white/95 backdrop-blur-sm border-b border-stone-200 z-50">
+      <div className="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
+        {/* Logo */}
+        <button 
+          onClick={() => setCurrentView('intro')}
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
+        >
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center">
+            <span className="text-white text-sm font-medium">M</span>
+          </div>
+          <span className="font-semibold text-stone-800">MR Walls</span>
+        </button>
+        
+        {/* Nav */}
+        <nav className="flex gap-1">
+          <button
+            onClick={() => {
+              setCurrentView('chat');
+              if (messages.length === 0) {
+                setMessages([{
+                  role: 'assistant',
+                  content: "Hello! I'm Mara. What kind of project are you working on?"
+                }]);
+              }
+            }}
+            className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              currentView === 'chat' 
+                ? 'bg-stone-100 text-stone-900' 
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
+            }`}
+          >
+            Chat
+          </button>
+          <button
+            onClick={() => setCurrentView('library')}
+            className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              currentView === 'library' 
+                ? 'bg-stone-100 text-stone-900' 
+                : 'text-stone-600 hover:text-stone-900 hover:bg-stone-50'
+            }`}
+          >
+            Ready to Spec
+          </button>
+          <button
+            onClick={() => setCurrentView('generate')}
+            className={`px-4 py-2 rounded-lg text-sm transition-colors ${
+              currentView === 'generate' 
+                ? 'bg-gradient-to-r from-amber-500 to-orange-500 text-white' 
+                : 'text-amber-600 hover:bg-amber-50'
+            }`}
+          >
+            ✨ AI Generate
+          </button>
+        </nav>
+        
+        {/* Mara Toggle */}
+        <button
+          onClick={() => setShowMara(!showMara)}
+          className={`px-4 py-2 rounded-lg text-sm border transition-colors ${
+            showMara 
+              ? 'border-amber-400 bg-amber-50 text-amber-700' 
+              : 'border-stone-200 text-stone-600 hover:border-stone-300'
+          }`}
+        >
+          {showMara ? 'Hide Mara' : 'Ask Mara'}
+        </button>
+      </div>
+    </header>
+  );
+  
+  // Chat View
+  const renderChat = () => (
+    <div className="pt-16 min-h-screen bg-stone-50">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        {/* Messages */}
+        <div className="space-y-6 pb-32">
+          {messages.map((msg, i) => (
+            <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+              {msg.role === 'assistant' && (
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mr-3 flex-shrink-0">
+                  <span className="text-white text-xs font-medium">M</span>
+                </div>
+              )}
+              <div className={`max-w-xl rounded-2xl px-4 py-3 ${
+                msg.role === 'user' 
+                  ? 'bg-stone-800 text-white' 
+                  : 'bg-white border border-stone-200 text-stone-800'
+              }`}>
+                <div className="whitespace-pre-wrap text-sm leading-relaxed">
+                  {msg.content.split('**').map((part, j) => 
+                    j % 2 === 1 ? <strong key={j}>{part}</strong> : part
+                  )}
                 </div>
               </div>
-              
-              {/* Mara Input in Modal */}
-              <div className="flex gap-2">
-                <input
-                  ref={modalInputRef}
-                  placeholder="Ask Mara about this pattern..."
-                  className="flex-1 px-3 py-2 bg-stone-800 border border-stone-700 rounded-lg text-sm focus:outline-none focus:border-stone-500"
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' && e.target.value.trim()) {
-                      send(e.target.value, true);
-                      e.target.value = '';
-                    }
-                  }}
-                />
-                <button
-                  onClick={() => {
-                    if (modalInputRef.current?.value.trim()) {
-                      send(modalInputRef.current.value, true);
-                      modalInputRef.current.value = '';
-                    }
-                  }}
-                  className="px-4 py-2 bg-stone-100 text-stone-900 rounded-lg text-sm font-medium hover:bg-white"
-                >
-                  Ask
-                </button>
+            </div>
+          ))}
+          
+          {isTyping && (
+            <div className="flex items-start">
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-amber-400 to-orange-500 flex items-center justify-center mr-3">
+                <span className="text-white text-xs font-medium">M</span>
+              </div>
+              <div className="bg-white border border-stone-200 rounded-2xl px-4 py-3">
+                <div className="flex gap-1">
+                  <div className="w-2 h-2 rounded-full bg-stone-400 animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-stone-400 animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-2 h-2 rounded-full bg-stone-400 animate-bounce" style={{ animationDelay: '300ms' }}></div>
+                </div>
               </div>
             </div>
-
-            {/* Family Grid */}
-            <div className="grid grid-cols-4 gap-3 mb-4">
-              {familyImages.map((img, i) => (
-                <button
-                  key={i}
-                  onClick={() => handleFamilyClick(img)}
-                  className="relative aspect-square rounded-lg overflow-hidden border border-stone-700 hover:border-stone-500 transition-all"
-                >
-                  <img src={img.image} alt={img.title} className="w-full h-full object-cover" />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-                  <div className="absolute bottom-1 left-1 right-1">
-                    <p className="text-[10px] text-white truncate">{img.title}</p>
-                    {img.corianColor && CORIAN_COLORS[img.corianColor] && (
-                      <div className="flex items-center gap-1 mt-0.5">
-                        <div className="w-2 h-2 rounded-full border border-white/30" style={{ backgroundColor: CORIAN_COLORS[img.corianColor].hex }} />
-                        <span className="text-[8px] text-stone-400">{img.corianColor}</span>
-                      </div>
-                    )}
-                  </div>
-                </button>
-              ))}
-            </div>
-
-            {/* View Specs Button */}
+          )}
+          <div ref={messagesEndRef} />
+        </div>
+        
+        {/* Input */}
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-stone-200 p-4">
+          <div className="max-w-3xl mx-auto flex gap-3">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Ask Mara about patterns, pricing, applications..."
+              className="flex-1 px-4 py-3 rounded-xl border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-400 focus:border-transparent"
+            />
             <button
-              onClick={() => handleFamilyClick(selectedImage)}
-              className="w-full py-3 bg-stone-800 hover:bg-stone-700 rounded-xl text-sm font-medium"
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim()}
+              className="px-6 py-3 bg-stone-800 text-white rounded-xl hover:bg-stone-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              View Full Specs for {selectedImage.title}
+              Send
             </button>
           </div>
         </div>
-      )}
-
-      {/* SPECS MODAL */}
-      {specsImage && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4" onClick={closeSpecs}>
-          <div className="bg-stone-950 rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-auto border border-stone-800" onClick={(e) => e.stopPropagation()}>
-            <div className="aspect-video relative bg-stone-900">
-              <img src={specsImage.image} alt={specsImage.title} className="w-full h-full object-cover" />
-              <button onClick={closeSpecs} className="absolute top-4 right-4 w-10 h-10 bg-black/50 rounded-full flex items-center justify-center text-white hover:bg-black/70">✕</button>
-            </div>
-            
-            <div className="p-6">
-              <h2 className="text-xl font-semibold text-stone-100 mb-1">{specsImage.title}</h2>
-              <p className="text-sm text-stone-400 mb-4">{specsImage.pattern} • {specsImage.sector}</p>
-              <p className="text-sm text-stone-300 mb-6">{specsImage.description}</p>
-              
-              <div className="grid grid-cols-2 gap-4 mb-6">
-                <div><p className="text-xs text-stone-500 uppercase">Material</p><p className="text-sm text-stone-200">{specsImage.specs.material}</p></div>
-                <div><p className="text-xs text-stone-500 uppercase">Color</p><p className="text-sm text-stone-200">{specsImage.corianColor || specsImage.specs.color}</p></div>
-                <div><p className="text-xs text-stone-500 uppercase">Max Panel</p><p className="text-sm text-stone-200">{specsImage.specs.maxPanel || `${specsImage.specs.height} × ${specsImage.specs.width}`}</p></div>
-                <div><p className="text-xs text-stone-500 uppercase">Lead Time</p><p className="text-sm text-stone-200">{specsImage.specs.leadTime}</p></div>
-                <div><p className="text-xs text-stone-500 uppercase">System</p><p className="text-sm text-stone-200">{specsImage.specs.system}</p></div>
-                <div><p className="text-xs text-stone-500 uppercase">Price</p><p className="text-sm text-stone-200">${specsImage.specs.pricePerSF}/SF</p></div>
-                {specsImage.specs.enhancement && (
-                  <div className="col-span-2"><p className="text-xs text-stone-500 uppercase">Enhancement</p><p className="text-sm text-stone-200">{specsImage.specs.enhancement}</p></div>
-                )}
-              </div>
-              
-              <div className="flex gap-3">
-                <button className="flex-1 py-3 bg-stone-800 hover:bg-stone-700 rounded-xl font-medium text-sm border border-stone-700">Download Specs</button>
-                <button className="flex-1 py-3 bg-stone-100 text-stone-900 hover:bg-white rounded-xl font-medium text-sm">Request Quote</button>
-              </div>
-              
-              {specsImage.shopDrawing && (
-                <a href={specsImage.shopDrawing} target="_blank" rel="noopener noreferrer" className="block mt-4 text-center text-sm text-stone-400 hover:text-stone-200 underline">View Shop Drawing →</a>
-              )}
-              
-              <button onClick={closeSpecs} className="mt-4 w-full py-2 text-sm text-stone-500 hover:text-stone-300">← Back to related images</button>
-            </div>
-          </div>
+      </div>
+    </div>
+  );
+  
+  // Ready to Spec Library (placeholder)
+  const renderLibrary = () => (
+    <div className="pt-16 min-h-screen bg-stone-50">
+      <div className="max-w-7xl mx-auto px-4 py-12">
+        <div className="text-center mb-12">
+          <h2 className="text-3xl font-light text-stone-800 mb-4">Ready to Spec</h2>
+          <p className="text-stone-600">Pre-designed panels. Instant pricing. Shop drawings included.</p>
         </div>
-      )}
-
-      {/* GALLERY MODAL */}
-      {showGallery && (
-        <div className="fixed inset-0 bg-black/95 z-50 overflow-y-auto">
-          <div className="max-w-6xl mx-auto p-4">
-            <div className="flex items-center justify-between mb-6 sticky top-0 bg-black/80 backdrop-blur-sm py-4 -mx-4 px-4 z-10">
-              <div>
-                <h2 className="text-xl font-semibold text-stone-100">Full Collection</h2>
-                <p className="text-sm text-stone-500">{IMAGE_CATALOG.length} images • Tap to explore</p>
+        
+        {/* Placeholder for library */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {['Lake', 'Billow', 'Clouds', 'Topo', 'Honey', 'Reeds'].map((pattern) => (
+            <div key={pattern} className="bg-white rounded-xl border border-stone-200 overflow-hidden hover:shadow-lg transition-shadow">
+              <div className="aspect-video bg-gradient-to-br from-stone-100 to-stone-200 flex items-center justify-center">
+                <span className="text-stone-400 text-lg">{pattern} Preview</span>
               </div>
-              <button onClick={() => setShowGallery(false)} className="w-10 h-10 bg-stone-800 hover:bg-stone-700 rounded-full flex items-center justify-center text-white">✕</button>
-            </div>
-
-            {Object.entries(getGalleryPatterns()).map(([pattern, images]) => (
-              <div key={pattern} className="mb-8">
-                <h3 className="text-sm font-medium text-stone-400 uppercase tracking-wide mb-3">{pattern}</h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
-                  {images.map((img, i) => (
-                    <button
-                      key={i}
-                      onClick={() => { setShowGallery(false); handleImageClick(img); }}
-                      className="relative aspect-[4/3] rounded-lg overflow-hidden border border-stone-800 hover:border-stone-600 transition-all group"
-                    >
-                      <img src={img.image} alt={img.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent" />
-                      <div className="absolute bottom-0 left-0 right-0 p-2">
-                        <p className="text-xs font-medium text-white truncate">{img.title}</p>
-                        <div className="flex items-center gap-1 mt-0.5">
-                          {img.corianColor && CORIAN_COLORS[img.corianColor] && (
-                            <div className="w-2 h-2 rounded-full border border-white/30" style={{ backgroundColor: CORIAN_COLORS[img.corianColor].hex }} />
-                          )}
-                          <span className="text-[10px] text-stone-400">{img.sector}</span>
-                          {img.isBacklit && <span className="text-[10px] text-amber-400 ml-1">✦ Backlit</span>}
-                        </div>
-                      </div>
-                    </button>
-                  ))}
+              <div className="p-4">
+                <h3 className="font-medium text-stone-800 mb-1">{pattern}</h3>
+                <p className="text-sm text-stone-500 mb-3">Linear Collection</p>
+                <div className="flex items-center justify-between">
+                  <span className="text-amber-600 font-medium">$25/SF</span>
+                  <button className="text-sm text-stone-600 hover:text-stone-900">View Sizes →</button>
                 </div>
               </div>
-            ))}
+            </div>
+          ))}
+        </div>
+        
+        <div className="mt-12 text-center">
+          <p className="text-stone-500 mb-4">Full library coming soon with 30+ patterns and instant quotes.</p>
+          <button 
+            onClick={() => setCurrentView('generate')}
+            className="px-6 py-3 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600"
+          >
+            Try AI Generate Instead →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+  
+  // AI Generate View
+  const renderGenerate = () => (
+    <div className="pt-16 min-h-screen bg-stone-50">
+      <div className="max-w-7xl mx-auto px-4 py-8">
+        {/* Header */}
+        <div className="text-center mb-8">
+          <h2 className="text-3xl font-light text-stone-800 mb-2">AI Generate</h2>
+          <p className="text-stone-600">See MR Walls patterns in your context. Every image is buildable.</p>
+        </div>
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Controls */}
+          <div className="bg-white rounded-xl border border-stone-200 p-6">
+            <h3 className="font-medium text-stone-800 mb-6">Configure Your Visualization</h3>
+            
+            {/* Pattern Selection */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-stone-700 mb-2">Pattern</label>
+              <div className="grid grid-cols-3 gap-2">
+                {Object.entries(LORA_MODELS).map(([key, model]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedPattern(key)}
+                    className={`p-3 rounded-lg border text-sm transition-all ${
+                      selectedPattern === key
+                        ? 'border-amber-400 bg-amber-50 text-amber-700'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    <div className="font-medium">{model.name}</div>
+                    <div className="text-xs mt-1 text-stone-500">
+                      {model.status === 'ready' && '✅ Ready'}
+                      {model.status === 'internal' && '⚠️ Internal'}
+                      {model.status === 'untested' && '🔄 Testing'}
+                    </div>
+                  </button>
+                ))}
+              </div>
+              <p className="text-xs text-stone-500 mt-2">{LORA_MODELS[selectedPattern].description}</p>
+            </div>
+            
+            {/* Sector */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-stone-700 mb-2">Sector</label>
+              <div className="grid grid-cols-2 gap-2">
+                {Object.entries(SECTORS).map(([key, sector]) => (
+                  <button
+                    key={key}
+                    onClick={() => {
+                      setSelectedSector(key);
+                      setSelectedApplication(sector.applications[0]);
+                    }}
+                    className={`p-3 rounded-lg border text-sm transition-all ${
+                      selectedSector === key
+                        ? 'border-amber-400 bg-amber-50 text-amber-700'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    {sector.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Application */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-stone-700 mb-2">Application</label>
+              <select
+                value={selectedApplication}
+                onChange={(e) => setSelectedApplication(e.target.value)}
+                className="w-full p-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-400"
+              >
+                {SECTORS[selectedSector].applications.map((app) => (
+                  <option key={app} value={app}>{app}</option>
+                ))}
+              </select>
+            </div>
+            
+            {/* Backlight Color */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-stone-700 mb-2">Backlight Color</label>
+              <div className="flex flex-wrap gap-2">
+                {Object.entries(BACKLIGHT_COLORS).map(([key, color]) => (
+                  <button
+                    key={key}
+                    onClick={() => setSelectedBacklight(key)}
+                    className={`px-4 py-2 rounded-lg border text-sm transition-all ${
+                      selectedBacklight === key
+                        ? 'border-amber-400 bg-amber-50 text-amber-700'
+                        : 'border-stone-200 hover:border-stone-300'
+                    }`}
+                  >
+                    {color.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+            
+            {/* Custom Prompt (Advanced) */}
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-stone-700 mb-2">
+                Custom Prompt <span className="text-stone-400 font-normal">(optional - overrides presets)</span>
+              </label>
+              <textarea
+                value={customPrompt}
+                onChange={(e) => setCustomPrompt(e.target.value)}
+                placeholder="Describe your vision... or leave blank to use preset."
+                className="w-full p-3 rounded-lg border border-stone-200 focus:outline-none focus:ring-2 focus:ring-amber-400 h-24 resize-none"
+              />
+            </div>
+            
+            {/* Generate Button */}
+            <button
+              onClick={generateImage}
+              disabled={isGenerating}
+              className="w-full py-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-lg hover:from-amber-600 hover:to-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all font-medium"
+            >
+              {isGenerating ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"/>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                  </svg>
+                  Generating...
+                </span>
+              ) : (
+                '✨ Generate Image'
+              )}
+            </button>
+          </div>
+          
+          {/* Preview/Result */}
+          <div className="bg-white rounded-xl border border-stone-200 p-6">
+            <h3 className="font-medium text-stone-800 mb-4">Preview</h3>
+            
+            {generationError && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+                <p className="text-red-700 text-sm">{generationError}</p>
+              </div>
+            )}
+            
+            {isGenerating && (
+              <div className="aspect-video bg-stone-100 rounded-lg flex flex-col items-center justify-center">
+                <div className="w-12 h-12 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mb-4"></div>
+                <p className="text-stone-500">Generating your visualization...</p>
+                <p className="text-xs text-stone-400 mt-1">This takes about 10-20 seconds</p>
+              </div>
+            )}
+            
+            {!isGenerating && !generatedImage && (
+              <div className="aspect-video bg-gradient-to-br from-stone-100 to-stone-200 rounded-lg flex flex-col items-center justify-center">
+                <div className="w-16 h-16 rounded-full bg-stone-200 flex items-center justify-center mb-4">
+                  <span className="text-2xl">✨</span>
+                </div>
+                <p className="text-stone-500">Configure settings and click Generate</p>
+                <p className="text-xs text-stone-400 mt-1">
+                  {LORA_MODELS[selectedPattern].name} • {SECTORS[selectedSector].name} • {selectedApplication}
+                </p>
+              </div>
+            )}
+            
+            {generatedImage && !isGenerating && (
+              <div>
+                <div className="relative aspect-video bg-stone-100 rounded-lg overflow-hidden mb-4">
+                  <img 
+                    src={generatedImage.url} 
+                    alt="Generated visualization"
+                    className="w-full h-full object-cover"
+                  />
+                  {/* Watermark */}
+                  <div className="absolute bottom-4 right-4 bg-black/50 backdrop-blur-sm text-white text-xs px-3 py-1 rounded">
+                    MR Walls • Buildable
+                  </div>
+                </div>
+                
+                {/* Actions */}
+                <div className="flex gap-3">
+                  <a
+                    href={generatedImage.url}
+                    download={`mrwalls-${generatedImage.pattern}-${Date.now()}.jpg`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 py-3 border border-stone-200 rounded-lg text-center text-stone-700 hover:bg-stone-50 transition-colors"
+                  >
+                    Download
+                  </a>
+                  <button
+                    onClick={generateImage}
+                    className="flex-1 py-3 border border-amber-400 rounded-lg text-amber-600 hover:bg-amber-50 transition-colors"
+                  >
+                    Generate Again
+                  </button>
+                </div>
+                
+                {/* Details */}
+                <div className="mt-4 p-4 bg-stone-50 rounded-lg text-sm">
+                  <p className="font-medium text-stone-700 mb-2">Generation Details</p>
+                  <p className="text-stone-500">Pattern: {generatedImage.pattern}</p>
+                  <p className="text-stone-500">Context: {SECTORS[generatedImage.sector].name} — {generatedImage.application}</p>
+                </div>
+                
+                {/* CTA */}
+                <div className="mt-4 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+                  <p className="text-amber-800 font-medium mb-1">Ready to build this?</p>
+                  <p className="text-amber-700 text-sm">Every image has CNC files behind it. Contact us for shop drawings and pricing.</p>
+                  <button className="mt-3 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 text-sm">
+                    Request Quote
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
-      )}
+        
+        {/* Help from Mara */}
+        <div className="mt-8 text-center">
+          <p className="text-stone-500 text-sm">
+            Questions about AI generation? The images you create are buildable.{' '}
+            <button 
+              onClick={() => {
+                setCurrentView('chat');
+                setMessages([{
+                  role: 'assistant',
+                  content: "I see you're exploring AI Generate! These aren't just pretty pictures — every visualization has CNC files behind it. What would you like to know about the patterns or how we can build them for your project?"
+                }]);
+              }}
+              className="text-amber-600 hover:underline"
+            >
+              Ask Mara
+            </button>
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+  
+  // Floating Mara (when showMara is true on other views)
+  const renderFloatingMara = () => {
+    if (!showMara || currentView === 'intro' || currentView === 'chat') return null;
+    
+    return (
+      <div className="fixed bottom-4 right-4 w-96 bg-white rounded-xl shadow-2xl border border-stone-200 z-50 overflow-hidden">
+        {/* Header */}
+        <div className="bg-gradient-to-r from-amber-400 to-orange-500 px-4 py-3 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+              <span className="text-white text-sm font-medium">M</span>
+            </div>
+            <span className="text-white font-medium">Mara</span>
+          </div>
+          <button 
+            onClick={() => setShowMara(false)}
+            className="text-white/80 hover:text-white"
+          >
+            ✕
+          </button>
+        </div>
+        
+        {/* Mini Chat */}
+        <div className="h-64 overflow-y-auto p-4 space-y-3">
+          {messages.length === 0 ? (
+            <div className="text-stone-500 text-sm">
+              Ask me anything about MR Walls, patterns, pricing, or your project.
+            </div>
+          ) : (
+            messages.slice(-4).map((msg, i) => (
+              <div key={i} className={`text-sm ${msg.role === 'user' ? 'text-right' : ''}`}>
+                <div className={`inline-block rounded-lg px-3 py-2 max-w-xs ${
+                  msg.role === 'user' 
+                    ? 'bg-stone-800 text-white' 
+                    : 'bg-stone-100 text-stone-800'
+                }`}>
+                  {msg.content.substring(0, 150)}{msg.content.length > 150 ? '...' : ''}
+                </div>
+              </div>
+            ))
+          )}
+          {isTyping && (
+            <div className="flex gap-1 px-3 py-2 bg-stone-100 rounded-lg w-16">
+              <div className="w-2 h-2 rounded-full bg-stone-400 animate-bounce"></div>
+              <div className="w-2 h-2 rounded-full bg-stone-400 animate-bounce" style={{animationDelay:'150ms'}}></div>
+              <div className="w-2 h-2 rounded-full bg-stone-400 animate-bounce" style={{animationDelay:'300ms'}}></div>
+            </div>
+          )}
+        </div>
+        
+        {/* Input */}
+        <div className="border-t border-stone-200 p-3">
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={inputValue}
+              onChange={(e) => setInputValue(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
+              placeholder="Ask Mara..."
+              className="flex-1 px-3 py-2 rounded-lg border border-stone-200 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400"
+            />
+            <button
+              onClick={handleSendMessage}
+              disabled={!inputValue.trim()}
+              className="px-3 py-2 bg-stone-800 text-white rounded-lg text-sm disabled:opacity-50"
+            >
+              →
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+  
+  // ============================================
+  // MAIN RENDER
+  // ============================================
+  
+  return (
+    <div className="font-sans antialiased">
+      {currentView !== 'intro' && renderHeader()}
+      
+      {currentView === 'intro' && renderIntro()}
+      {currentView === 'chat' && renderChat()}
+      {currentView === 'library' && renderLibrary()}
+      {currentView === 'generate' && renderGenerate()}
+      
+      {renderFloatingMara()}
     </div>
   );
 }
